@@ -4,7 +4,6 @@
 
 O foco do projeto é demonstrar habilidades em **frontend, UX, modelagem de regras de negócio e arquitetura de aplicações**, resolvendo um problema real do mercado fitness: a organização da rotina do personal trainer.
 
-> Este projeto **não é um SaaS comercial** e **não trabalha com pagamentos online**.
 
 ---
 
