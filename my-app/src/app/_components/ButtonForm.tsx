@@ -1,6 +1,6 @@
 export default function ButtonForm(Porps: { text: string }) {
   return (
-    <button className="bg-white w-full text-black text-sm font-semibold p-1.5 rounded hover:bg-gray-200 ">
+    <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold p-1 rounded-xl w-full">
       {Porps.text}
     </button>
   );

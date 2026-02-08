@@ -19,10 +19,10 @@ export default function StudentDashboard() {
   }
 
   return (
-    <main className="bg-zinc-700 w-full h-dvh p-8">
+    <main className="bg-white  w-full h-dvh p-8">
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-white text-3xl font-bold">Dashboard - Aluno</h1>
+          <h1 className="text-black text-3xl font-bold">Dashboard - Aluno</h1>
           <button
             onClick={() => signOut()}
             className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
@@ -34,7 +34,6 @@ export default function StudentDashboard() {
         <div className="bg-zinc-800 rounded-lg p-6 text-white">
           <p className="mb-4">Bem-vindo, {session.user?.name}!</p>
           <p>Email: {session.user?.email}</p>
-          {/* Adicione aqui o conteúdo específico do aluno */}
         </div>
       </div>
     </main>
