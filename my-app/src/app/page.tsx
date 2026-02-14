@@ -29,7 +29,7 @@ export default function Home() {
   if (status === "loading") {
     return (
       <main className="bg-white  w-full h-dvh flex flex-col items-center justify-center">
-        <p className="text-white">Carregando...</p>
+        <p className="text-black">Carregando...</p>
       </main>
     );
   }
