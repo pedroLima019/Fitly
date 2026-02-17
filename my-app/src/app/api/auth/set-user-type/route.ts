@@ -1,10 +1,12 @@
 import { getServerSession } from "next-auth/next";
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { authOptions } from "../[...nextauth]/route";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
   }
 
@@ -18,14 +20,15 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // AQUI: Você deverá salvar no seu banco de dados
-    // Exemplo com Prisma:
-    // await prisma.user.update({
-    //   where: { email: session.user?.email },
-    //   data: { userType }
-    // });
+    const user = await prisma.user.update({
+      where: { id: session.user.id },
+      data: { userType },
+    });
 
-    return NextResponse.json({ success: true, userType }, { status: 200 });
+    return NextResponse.json(
+      { success: true, userType: user.userType },
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Erro ao salvar tipo de usuário:", error);
     return NextResponse.json(

@@ -2,35 +2,51 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Onboarding() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
 
   if (status === "loading") {
     return <p className="text-black">Carregando...</p>;
   }
 
   if (status === "unauthenticated") {
-    router.push("/");
     return null;
   }
 
-  const handleSelectRole = async (userType: "personal" | "aluno") => {
+  const handleSelectRole = async (userType: "personal" | "student") => {
     setLoading(true);
     try {
-      await fetch("/api/auth/set-user-type", {
+      const response = await fetch("/api/auth/set-user-type", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userType }),
+        credentials: "include",
+        body: JSON.stringify({
+          userType: userType === "student" ? "student" : "personal",
+        }),
       });
 
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(
+          `Erro ${response.status}: ${data.error || response.statusText}`,
+        );
+      }
+
+      // Redirecionar direto após sucesso
       if (userType === "personal") {
-        router.push("/dashboard/personal");
+        window.location.href = "/dashboard/personal";
       } else {
-        router.push("/dashboard/aluno");
+        window.location.href = "/dashboard/aluno";
       }
     } catch (error) {
       console.error("Erro ao selecionar tipo de usuário:", error);
@@ -59,7 +75,7 @@ export default function Onboarding() {
             Sou Personal Trainer
           </button>
           <button
-            onClick={() => handleSelectRole("aluno")}
+            onClick={() => handleSelectRole("student")}
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold p-2 rounded-xl transition disabled:opacity-50"
           >
