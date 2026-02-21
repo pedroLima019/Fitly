@@ -1,11 +1,12 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function Onboarding() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +17,11 @@ export default function Onboarding() {
   }, [status, router]);
 
   if (status === "loading") {
-    return <p className="text-black">Carregando...</p>;
+    return (
+      <main className="flex flex-col justify-center items-center bg-[#0F172A] ">
+        <p className="text-white">Carregando...</p>;
+      </main>
+    );
   }
 
   if (status === "unauthenticated") {
@@ -42,7 +47,6 @@ export default function Onboarding() {
         );
       }
 
-      // Redirecionar direto após sucesso
       if (userType === "personal") {
         window.location.href = "/dashboard/personal";
       } else {
@@ -55,29 +59,35 @@ export default function Onboarding() {
   };
 
   return (
-    <main className="bg-white w-full h-dvh flex flex-col items-center justify-center">
-      <div className="container mx-auto px-4 py-8 space-y-6 max-w-md">
-        <div className="text-center">
-          <h1 className="text-black text-3xl font-bold mb-2">
+    <main className="bg-white w-full h-dvh flex flex-col items-center justify-center p-2">
+      <div className="container mx-auto px-4 py-8 space-y-2 max-w-md rounded-2xl bg-[#0F172A] flex flex-col justify-center items-center shadow-2xl ">
+        <div className="text-center flex flex-col items-center space-y-5 p-1 ">
+          <Image
+            src="/logoFitly.png"
+            width={50}
+            height={50}
+            alt="Logo Fitly "
+          />
+          <h1 className="text-white text-xl font-bold mb-5">
             Bem-vindo, {session?.user?.name}!
           </h1>
-          <p className="text-black text-sm">
+          <p className="text-white text-sm ">
             Selecione qual tipo de usuário você é:
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           <button
             onClick={() => handleSelectRole("personal")}
             disabled={loading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold p-2 rounded-xl transition disabled:opacity-50"
+            className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold p-2 rounded-xl transition disabled:opacity-50"
           >
             Sou Personal Trainer
           </button>
           <button
             onClick={() => handleSelectRole("student")}
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold p-2 rounded-xl transition disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold p-2 rounded-xl transition disabled:opacity-50"
           >
             Sou Aluno
           </button>
