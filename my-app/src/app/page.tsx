@@ -29,7 +29,7 @@ export default function Home() {
 
   if (status === "loading") {
     return (
-      <main className="bg-[#0F172A]   w-full h-dvh flex flex-col items-center justify-center ">
+      <main className="bg-[#0F172A] w-full h-dvh flex flex-col items-center justify-center ">
         <p className="text-white">Carregando...</p>
       </main>
     );
@@ -37,7 +37,7 @@ export default function Home() {
 
   return (
     <main className="bg-white w-full h-dvh flex flex-col items-center justify-center p-2">
-      <div className="container mx-auto px-4 py-8 space-y-1 flex flex-col justify-center items-center bg-[#0F172A] rounded-2xl md:w-150 shadow-2xl">
+      <div className="container mx-auto px-4 py-8 space-y-2 flex flex-col justify-center items-center bg-[#0F172A] rounded-2xl md:w-150 shadow-2xl">
         <Image
           src="/logoFitly.png"
           width={50}
@@ -48,7 +48,7 @@ export default function Home() {
         <h1 className="text-center text-white text-2xl font-bold">
           Bem-vindo ao Fitly!
         </h1>
-        <p className="text-white text-center text-xs">
+        <p className="text-white text-center text-xs font-light">
           O fitly é um aplicativo de gerenciamento de treinos para personal
           trainers e clientes.
         </p>

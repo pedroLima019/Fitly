@@ -24,7 +24,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <main className="bg-white w-full h-dvh ">
+    <main className="bg-white w-full h-dvh">
       <Header />
     </main>
   );

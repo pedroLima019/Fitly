@@ -15,7 +15,11 @@ export default function PersonalDashboard() {
   }, [status, router]);
 
   if (status === "loading" || !session) {
-    return <p className="text-white">Carregando...</p>;
+    return (
+      <main className="bg-[#0F172A] w-full h-dvh flex flex-col items-center justify-center ">
+        <p className="text-white">Carregando...</p>
+      </main>
+    );
   }
 
   return (

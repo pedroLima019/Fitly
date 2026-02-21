@@ -18,8 +18,8 @@ export default function Onboarding() {
 
   if (status === "loading") {
     return (
-      <main className="flex flex-col justify-center items-center bg-[#0F172A] ">
-        <p className="text-white">Carregando...</p>;
+      <main className="bg-[#0F172A] w-full h-dvh flex flex-col items-center justify-center ">
+        <p className="text-white">Carregando...</p>
       </main>
     );
   }
