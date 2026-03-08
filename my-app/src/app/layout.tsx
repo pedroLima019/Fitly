@@ -6,7 +6,7 @@ import { Providers } from "./_components/SessionProvider";
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
-  weight: "100",
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-br">
-      <body className={`${poppins.variable} antialiased`}>
+      <body className={`${poppins.className} antialiased`}>
         <Providers> {children}</Providers>
       </body>
     </html>

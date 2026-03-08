@@ -15,7 +15,7 @@ export default function Home() {
     if (session?.user?.userType) {
       if (session.user.userType === "personal") {
         router.push("/dashboard/personal");
-      } else if (session.user.userType === "aluno") {
+      } else if (session.user.userType === "student") {
         router.push("/dashboard/aluno");
       }
     } else if (status === "authenticated" && !session?.user?.userType) {
@@ -83,7 +83,7 @@ export default function Home() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="border border-white   transition-all duration-300 text-white font-semibold p-1 rounded-xl w-full flex items-center justify-center gap-2 hover:bg-white hover:text-black "
+            className="border border-white text-sm  transition-all duration-300 text-white font-semibold p-2 rounded-xl w-full flex items-center justify-center gap-2 hover:bg-white hover:text-black "
           >
             <FcGoogle />
             Entrar com o Google

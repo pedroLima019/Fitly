@@ -18,7 +18,7 @@ export default function Onboarding() {
 
   if (status === "loading") {
     return (
-      <main className="bg-[#0F172A] w-full h-dvh flex flex-col items-center justify-center ">
+      <main className="bg-[#0F172A] w-full h-dvh flex flex-col items-center justify-center  ">
         <p className="text-white">Carregando...</p>
       </main>
     );
@@ -60,13 +60,14 @@ export default function Onboarding() {
 
   return (
     <main className="bg-white w-full h-dvh flex flex-col items-center justify-center p-2">
-      <div className="container mx-auto px-4 py-8 space-y-2 max-w-md rounded-2xl bg-[#0F172A] flex flex-col justify-center items-center shadow-2xl ">
+      <div className="container mx-auto p-5 space-y-2 max-w-lg rounded-2xl bg-[#0F172A] flex flex-col justify-center items-center shadow-2xl  ">
         <div className="text-center flex flex-col items-center space-y-5 p-1 ">
           <Image
             src="/logoFitly.png"
             width={50}
             height={50}
             alt="Logo Fitly "
+            className="rounded-xl"
           />
           <h1 className="text-white text-xl font-bold mb-5">
             Bem-vindo, {session?.user?.name}!
