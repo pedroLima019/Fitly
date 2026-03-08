@@ -18,7 +18,7 @@ export default function Header() {
   const profilePath =
     session?.user?.userType === "personal"
       ? "/dashboard/personal/complete-perfil"
-      : "/dashboard/aluno";
+      : "/dashboard/aluno/complete-perfil";
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });

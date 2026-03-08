@@ -129,7 +129,7 @@ export default function StudentDashboard() {
         {loadingPersonals ? (
           <p className="text-center text-zinc-600">Encontrando personais...</p>
         ) : filteredPersonals.length === 0 ? (
-          <p className="text-center text-zinc-600 py-12">
+          <p className="text-center text-zinc-600 py-12 text-sm">
             Nenhum personal encontrado para essa pesquisa.
           </p>
         ) : (
