@@ -150,10 +150,10 @@ export default function BuscarPersonal() {
       <Header />
 
       <section className="max-w-6xl mx-auto p-4 md:p-6">
-        <h1 className="text-2xl md:text-3xl font-semibold mb-2">
+        <h1 className="text-xl md:text-3xl font-semibold mb-2">
           Buscar Personal
         </h1>
-        <p className="text-zinc-600 mb-6">
+        <p className="text-zinc-600 mb-6 text-xs ">
           Encontre o personal trainer ideal para você
         </p>
 

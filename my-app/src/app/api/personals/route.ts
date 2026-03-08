@@ -23,6 +23,11 @@ export async function GET(req: NextRequest) {
         bio: true,
         hourlyRate: true,
         pricePerSession: true,
+        trainings: {
+          select: {
+            name: true,
+          },
+        },
         createdAt: true,
       },
       orderBy: { createdAt: "desc" },

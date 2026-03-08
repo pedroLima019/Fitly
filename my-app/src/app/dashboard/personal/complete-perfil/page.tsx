@@ -187,10 +187,10 @@ export default function CompletePerfil() {
       <main className="bg-[#0F172A] w-full h-dvh flex flex-col items-center justify-center">
         <div className="text-center space-y-4">
           <p className="text-red-500 font-semibold">Erro ao carregar perfil</p>
-          <p className="text-white text-sm">{message}</p>
+          <p className="text-white text-xs">{message}</p>
           <button
             onClick={() => router.push("/dashboard/personal")}
-            className="mt-4 px-4 py-2 bg-[#319F43] text-white rounded-md text-sm"
+            className="mt-4 px-4 py-2 bg-[#319F43] text-white rounded-md text-xs"
           >
             Voltar
           </button>
@@ -204,48 +204,48 @@ export default function CompletePerfil() {
       <Header />
 
       <section className="max-w-2xl mx-auto p-4 md:p-6">
-        <h1 className="text-sm md:text-2xl font-semibold mb-5">
+        <h1 className="text-xs md:text-2xl font-semibold mb-5">
           Completar perfil do personal
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-1">
-            <label className="text-sm font-medium">Nome</label>
+            <label className="text-xs font-semibold">Nome</label>
             <input
               value={form.name}
               onChange={(e) => handleChange("name", e.target.value)}
-              className="w-full border rounded-md p-2 text-sm"
+              className="w-full border rounded-md p-2 text-xs"
               placeholder="Seu nome"
               required
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Especialidades</label>
+            <label className="text-xs font-semibold">Especialidades</label>
             <input
               value={form.specialties}
               onChange={(e) => handleChange("specialties", e.target.value)}
-              className="w-full border rounded-md p-2 text-sm"
+              className="w-full border rounded-md p-2 text-xs"
               placeholder="Ex: Hipertrofia, Emagrecimento"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Localização</label>
+            <label className="text-xs font-semibold">Localização</label>
             <input
               value={form.location}
               onChange={(e) => handleChange("location", e.target.value)}
-              className="w-full border rounded-md p-2 text-sm"
+              className="w-full border rounded-md p-2 text-xs"
               placeholder="Cidade / Bairro"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Bio curta</label>
+            <label className="text-xs font-semibold">Bio curta</label>
             <textarea
               value={form.bio}
               onChange={(e) => handleChange("bio", e.target.value)}
-              className="w-full border rounded-md p-2 text-sm min-h-24"
+              className="w-full border rounded-md p-2 text-xs min-h-24"
               placeholder="Conte em poucas linhas sobre seu trabalho"
               maxLength={240}
             />
@@ -253,7 +253,7 @@ export default function CompletePerfil() {
           </div>
 
           <div className="space-y-3 border-t pt-4">
-            <p className="text-sm font-medium">Como você cobra as aulas?</p>
+            <p className="text-xs font-semibold">Como você cobra as aulas?</p>
             <div className="flex gap-6">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -266,7 +266,7 @@ export default function CompletePerfil() {
                   }
                   className="w-4 h-4"
                 />
-                <span className="text-sm">Por hora</span>
+                <span className="text-xs">Por hora</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -279,13 +279,13 @@ export default function CompletePerfil() {
                   }
                   className="w-4 h-4"
                 />
-                <span className="text-sm">Por aula</span>
+                <span className="text-xs">Por aula</span>
               </label>
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">
+            <label className="text-xs font-semibold">
               Valor {chargeMode === "hourly" ? "por hora" : "por aula"} (R$)
             </label>
             <input
@@ -302,7 +302,7 @@ export default function CompletePerfil() {
                   handleChange("pricePerSession", e.target.value);
                 }
               }}
-              className="w-full border rounded-md p-2 text-sm"
+              className="w-full border rounded-md p-2 text-xs"
               placeholder={
                 chargeMode === "hourly" ? "Ex: 100.00" : "Ex: 150.00"
               }
@@ -313,7 +313,7 @@ export default function CompletePerfil() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-[#319F43] text-white p-2 w-1/2 rounded-md text-xs font-medium hover:opacity-90 disabled:opacity-70 transition-opacity"
+              className="bg-[#319F43] text-white p-2 w-1/2 rounded-md text-xs font-semibold hover:opacity-90 disabled:opacity-70 transition-opacity"
             >
               {saving ? "Salvando..." : "Salvar alterações"}
             </button>
@@ -322,7 +322,7 @@ export default function CompletePerfil() {
               type="button"
               onClick={handleCancel}
               disabled={saving}
-              className="w-1/2 bg-red-700 text-white p-2 rounded-md text-xs font-medium hover:bg-zinc-50 disabled:opacity-70 transition-colors"
+              className="w-1/2 bg-red-700 text-white p-2 rounded-md text-xs font-semibold hover:bg-zinc-50 disabled:opacity-70 transition-colors"
             >
               Cancelar
             </button>
@@ -384,12 +384,12 @@ export default function CompletePerfil() {
               </h3>
 
               {/* Mensagem */}
-              <p className="text-sm text-white">{message}</p>
+              <p className="text-xs text-white">{message}</p>
 
               {messageType === "error" ? (
                 <button
                   onClick={() => setShowModal(false)}
-                  className="w-full p-2 rounded-md text-sm font-medium text-white transition-colors bg-red-600 hover:bg-red-700"
+                  className="w-full p-2 rounded-md text-xs font-semibold text-white transition-colors bg-red-600 hover:bg-red-700"
                 >
                   Fechar
                 </button>
