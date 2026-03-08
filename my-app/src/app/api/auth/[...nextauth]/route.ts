@@ -52,15 +52,16 @@ export const authOptions: NextAuthOptions = {
       session.user.id = userId as string;
       session.user.name = (token?.name as string | null) || null;
 
-      // Buscar userType do banco para garantir que está atualizado
+      // Buscar dados atualizados do banco para garantir sessão sincronizada
       try {
         const user = await prisma.user.findUnique({
           where: { id: userId as string },
-          select: { userType: true },
+          select: { name: true, userType: true },
         });
+        session.user.name = user?.name || null;
         session.user.userType = user?.userType || null;
       } catch (error) {
-        console.error("[session] Erro ao buscar userType:", error);
+        console.error("[session] Erro ao buscar dados do usuário:", error);
       }
 
       return session;

@@ -15,6 +15,10 @@ import {
 
 export default function Header() {
   const { data: session } = useSession();
+  const profilePath =
+    session?.user?.userType === "personal"
+      ? "/dashboard/personal/complete-perfil"
+      : "/dashboard/aluno";
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });
@@ -39,7 +43,7 @@ export default function Header() {
         <div className="flex flex-col justify-center">
           <span className="font-semibold text-sm">{session?.user?.name}</span>
           <Link
-            href="/dashboard/perfil"
+            href={profilePath}
             className="text-xs hover:text-[#3BF37B] cursor-pointer"
           >
             Editar Perfil
@@ -66,7 +70,7 @@ export default function Header() {
             <div className="border-b pb-4">
               <h3 className="font-semibold text-sm mb-3 text-black">Perfil</h3>
               <Link
-                href="/dashboard/perfil"
+                href={profilePath}
                 className="text-black text-xs font-normal"
               >
                 Editar informações pessoais
