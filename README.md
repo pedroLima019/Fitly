@@ -1,90 +1,175 @@
-# Fitly
+# 🏋️ Fitly - Plataforma de Gerenciamento de Treinos
 
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
-![Tipo](https://img.shields.io/badge/tipo-web%20app-blue)
-![Licença](https://img.shields.io/badge/licença-MIT-green)
+![Version](https://img.shields.io/badge/versão-0.1.0-blue)
+![License](https://img.shields.io/badge/licença-MIT-green)
+![Node](https://img.shields.io/badge/node-18+-success)
 
-Um sistema completo de gerenciamento de treinos que conecta personal trainers e alunos em uma plataforma moderna e intuitiva.
+Uma plataforma moderna e intuitiva que conecta personal trainers e alunos, facilitando o gerenciamento, controle e acompanhamento de treinos com eficiência e precisão.
 
-⚠️ **Status**: Este projeto está em **desenvolvimento ativo**. Funcionalidades podem mudar e bugs podem estar presentes.
-
-## 📋 Sobre
-
-Fitly é uma aplicação web desenvolvida para facilitar o gerenciamento de treinos entre personal trainers e seus alunos. O sistema permite que personais criem, monitorem e atualizem os treinos de seus alunos, enquanto os alunos acompanham seus progressos e recebem orientações em tempo real.
+> ⚠️ **Status de desenvolvimento**: Este projeto está em desenvolvimento ativo. Funcionalidades podem evoluir e melhorias contínuas estão sendo implementadas.
 
 ---
 
-## 🔨 Status de Desenvolvimento
+## 📖 Visão Geral
 
-### ✅ Concluído
+**Fitly** é uma aplicação web full-stack desenvolvida com as mais modernas tecnologias da indústria. A plataforma resolve o desafio da comunicação e gerenciamento entre personal trainers e seus alunos, oferecendo dashboards intuitivos, processamento em tempo real e fluxos de trabalho otimizados.
 
-- [x] Autenticação e registro de usuários
-- [x] Diferenciação de tipos de usuário (Personal/Aluno)
-- [x] Estrutura de banco de dados (Prisma + PostgreSQL)
-- [x] Onboarding básico
+### 🎯 Problema que resolve
 
-### 🚧 Em Construção
+Personal trainers enfrentam dificuldades em:
 
-- [ ] Criar/editar/deletar treinos
-- [ ] Enviar convites para alunos
-- [ ] Dashboard para personal
-- [ ] Dashboard para aluno
-- [ ] Visualizar progresso e histórico
+- Gerenciar treinos de múltiplos alunos de forma centralizada
+- Acompanhar progresso e aderência ao plano de treino
+- Comunicar ajustes e feedback em tempo real
+- Organizar e armazenar histórico de treinos
 
-### 📋 Planejado
+Alunos precisam de:
 
-- [ ] Sistema de mensagens
-- [ ] Notificações em tempo real
-- [ ] Galeria de exercícios
-- [ ] Relatórios e análises
-- [ ] Aplicativo mobile
+- Acesso fácil aos treinos prescritos
+- Visualização clara do progresso
+- Comunicação direta com seu personal trainer
+
+**Fitly** resolve estes desafios através de uma interface unificada e intuitiva.
 
 ---
 
-## ✨ Funcionalidades Principais
-
-### Para Personal Trainers
-
-- ✅ Criar e gerenciar treinos customizados
-- ✅ Monitorar progresso e desempenho dos alunos
-- ✅ Visualizar lista de alunos vinculados
-- ✅ Atualizar exercícios e séries em tempo real
-- ✅ Dashboard análítico com dados de treinos
-
-### Para Alunos
-
-- ✅ Visualizar treinos atribuídos
-- ✅ Registrar execução de treinos
-- ✅ Acompanhar evolução e histórico
-- ✅ Receber feedback do personal
-- ✅ Dashboard personalizado com progresso
-
----
-
-## 🎯 Fluxo de Uso
+## 🔄 Fluxo de Uso
 
 ```
-1. Personal cria uma conta e se registra no sistema
-      ↓
-2. Personal cria treinos e convida alunos
-      ↓
-3. Aluno cria conta e aceita convite do personal
-      ↓
-4. Aluno visualiza seus treinos e começa a treinar
-      ↓
-5. Personal monitora progresso e ajusta treinos conforme necessário
+┌─────────────────────────────────────────────────────────┐
+│                    FITLY - USER FLOW                    │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  1️⃣  Personal Trainer cria conta + onboarding         │
+│       ↓                                                 │
+│  2️⃣  Personal cria/configura treinos                   │
+│       ↓                                                 │
+│  3️⃣  Personal convida alunos                           │
+│       ↓                                                 │
+│  4️⃣  Aluno cria conta + aceita convite                │
+│       ↓                                                 │
+│  5️⃣  Aluno visualiza dashboard com treinos            │
+│       ↓                                                 │
+│  6️⃣  Aluno executa treinos + registra progresso       │
+│       ↓                                                 │
+│  7️⃣  Personal monitora evolução e ajusta treinos      │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 Tecnologias Utilizadas
+## ✨ Funcionalidades
 
-- **Framework**: [Next.js 16](https://nextjs.org) - React framework para produção
-- **Autenticação**: [NextAuth.js 4](https://next-auth.js.org) - Solução de autenticação
-- **Banco de Dados**: [PostgreSQL](https://www.postgresql.org) com [Prisma ORM](https://www.prisma.io)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com) - Utility-first CSS framework
-- **Linguagem**: [TypeScript](https://www.typescriptlang.org) - JavaScript com tipagem estática
-- **Ícones**: [React Icons](https://react-icons.github.io/react-icons) - Biblioteca de ícones
+### 👥 Para Personal Trainers
+
+| Funcionalidade             | Status       | Descrição                              |
+| -------------------------- | ------------ | -------------------------------------- |
+| Criar treinos customizados | ✅ Planejado | Criar planos de treino personalizados  |
+| Gerenciar alunos           | ✅ Planejado | Visualizar e gerenciar lista de alunos |
+| Monitorar progresso        | ✅ Planejado | Acompanhar desempenho e aderência      |
+| Enviar convites            | ✅ Planejado | Convidar alunos para os programas      |
+| Dashboard analítico        | ✅ Planejado | Relatórios e análises de desempenho    |
+| Ajustar treinos            | ✅ Planejado | Atualizar exercícios em tempo real     |
+
+### 👨‍🎓 Para Alunos
+
+| Funcionalidade          | Status          | Descrição                       |
+| ----------------------- | --------------- | ------------------------------- |
+| Visualizar treinos      | ✅ Em progresso | Ver treinos prescritos          |
+| Registrar execução      | ✅ Planejado    | Marcar série, repetições e peso |
+| Acompanhar progresso    | ✅ Planejado    | Gráficos de evolução            |
+| Histórico de treinos    | ✅ Planejado    | Consultar treinos passados      |
+| Receber feedback        | ✅ Planejado    | Comunicação com o personal      |
+| Dashboard personalizado | ✅ Em progresso | Visão geral do progresso        |
+
+---
+
+## 🚀 Roadmap
+
+### Phase 1 - MVP (Em Desenvolvimento)
+
+- [x] Autenticação e autorização
+- [x] Diferenciação de tipos de usuário
+- [x] Setup inicial do banco de dados
+- [x] Onboarding dos usuários
+- [ ] CRUD completo de treinos
+- [ ] Sistema de convites
+- [ ] Dashboards funcionais
+
+### Phase 2 - Melhorias Core
+
+- [ ] Sistema de mensagens em tempo real
+- [ ] Notificações (email, push)
+- [ ] Galeria de exercícios com imagens
+- [ ] Estatísticas e relatórios avançados
+
+### Phase 3 - Expansão
+
+- [ ] Aplicativo mobile (iOS/Android)
+- [ ] Integração com wearables
+- [ ] Planos de treino templates
+- [ ] Comunidade de usuários
+
+---
+
+## �️ Stack Tecnológico
+
+O projeto utiliza um stack moderno e escalável, escolhido para performance, manutenibilidade e experiência do desenvolvedor.
+
+### Backend & Frontend
+
+| Tecnologia      | Versão  | Propósito                                     |
+| --------------- | ------- | --------------------------------------------- |
+| **Next.js**     | 16.1.6  | Framework React full-stack com API Routes     |
+| **React**       | 19.2.3  | Biblioteca UI com hooks e Server Components   |
+| **TypeScript**  | 5       | Tipagem estática completa                     |
+| **NextAuth.js** | 4.24.13 | Autenticação segura e gerenciamento de sessão |
+
+### Banco de Dados
+
+| Tecnologia         | Versão | Propósito                              |
+| ------------------ | ------ | -------------------------------------- |
+| **PostgreSQL**     | Latest | Banco de dados relacional robusto      |
+| **Prisma ORM**     | 7.4.0  | Query builder type-safe com migrations |
+| **Prisma Adapter** | 7.4.0  | Integração com NextAuth.js             |
+
+### Styling & UI
+
+| Tecnologia       | Versão  | Propósito                              |
+| ---------------- | ------- | -------------------------------------- |
+| **Tailwind CSS** | 4       | Utility-first CSS framework            |
+| **Radix UI**     | 1.4.3   | Componentes acessíveis e customizáveis |
+| **Lucide React** | 0.575.0 | Ícones modernos e consistentes         |
+| **React Icons**  | 5.5.0   | Alternativa adicional de ícones        |
+
+### Testes & Quality
+
+| Tecnologia          | Versão | Propósito                        |
+| ------------------- | ------ | -------------------------------- |
+| **Jest**            | 30.2.0 | Framework de testes unitários    |
+| **Testing Library** | 16.3.2 | Testes com foco em comportamento |
+| **ESLint**          | 9      | Linting e qualidade de código    |
+
+---
+
+## 📋 Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado em sua máquina:
+
+- **Node.js** 18 ou superior - [Download](https://nodejs.org/)
+- **npm**, **yarn**, **pnpm** ou **bun** (gerenciador de pacotes)
+- **PostgreSQL** 12 ou superior - [Download](https://www.postgresql.org/download/)
+- **Git** - [Download](https://git-scm.com/)
+
+Verifique as versões instaladas:
+
+```bash
+node --version      # v18+
+npm --version       # 9+
+postgres --version  # 12+
+```
 
 ---
 
