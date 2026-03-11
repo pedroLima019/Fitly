@@ -5,6 +5,28 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+const SPECIALTY_OPTIONS = [
+  "Hipertrofia",
+  "Emagrecimento",
+  "Funcional",
+  "Reabilitação",
+  "Mobilidade",
+  "Treinamento para idosos",
+  "Condicionamento físico",
+  "Esportes",
+  "Pilates",
+  "Cross training",
+];
+
+const OTHER_SPECIALTY = "Outros";
+
+const normalizeSpecialty = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
 type ProfileForm = {
   name: string;
   specialties: string;
@@ -28,6 +50,8 @@ export default function CompletePerfil() {
   const [chargeMode, setChargeMode] = useState<"hourly" | "perSession">(
     "hourly",
   );
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
+  const [customSpecialties, setCustomSpecialties] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -84,6 +108,40 @@ export default function CompletePerfil() {
 
         setForm(profileData);
 
+        const optionMap = new Map(
+          SPECIALTY_OPTIONS.map((option) => [
+            normalizeSpecialty(option),
+            option,
+          ]),
+        );
+        const incomingSpecialties = (data.profile?.specialties ?? "")
+          .split(",")
+          .map((item: string) => item.trim())
+          .filter(Boolean);
+
+        const matchedOptions: string[] = [];
+        const customOptions: string[] = [];
+
+        incomingSpecialties.forEach((item: string) => {
+          const matched = optionMap.get(normalizeSpecialty(item));
+
+          if (matched) {
+            if (!matchedOptions.includes(matched)) {
+              matchedOptions.push(matched);
+            }
+            return;
+          }
+
+          customOptions.push(item);
+        });
+
+        if (customOptions.length > 0) {
+          matchedOptions.push(OTHER_SPECIALTY);
+        }
+
+        setSelectedSpecialties(matchedOptions);
+        setCustomSpecialties(customOptions.join(", "));
+
         if (data.profile?.hourlyRate) {
           setChargeMode("hourly");
         } else if (data.profile?.pricePerSession) {
@@ -122,17 +180,50 @@ export default function CompletePerfil() {
     router.push("/dashboard/personal");
   };
 
+  const handleToggleSpecialty = (specialty: string) => {
+    setSelectedSpecialties((prev) => {
+      const isSelected = prev.includes(specialty);
+      const next = isSelected
+        ? prev.filter((item) => item !== specialty)
+        : [...prev, specialty];
+
+      if (specialty === OTHER_SPECIALTY && isSelected) {
+        setCustomSpecialties("");
+      }
+
+      return next;
+    });
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSaving(true);
     setMessage("");
 
     try {
+      const hasOtherSelected = selectedSpecialties.includes(OTHER_SPECIALTY);
+      const selectedWithoutOther = selectedSpecialties.filter(
+        (item) => item !== OTHER_SPECIALTY,
+      );
+      const customParts = hasOtherSelected
+        ? customSpecialties
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : [];
+      const specialtiesPayload = [...selectedWithoutOther, ...customParts].join(
+        ", ",
+      );
+
       const response = await fetch("/api/profile/personal", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ ...form, chargeMode }),
+        body: JSON.stringify({
+          ...form,
+          specialties: specialtiesPayload,
+          chargeMode,
+        }),
       });
 
       // Verifica se a resposta tem conteúdo antes de fazer parse
@@ -222,12 +313,39 @@ export default function CompletePerfil() {
 
           <div className="space-y-1">
             <label className="text-xs font-semibold">Especialidades</label>
-            <input
-              value={form.specialties}
-              onChange={(e) => handleChange("specialties", e.target.value)}
-              className="w-full border rounded-md p-2 text-xs"
-              placeholder="Ex: Hipertrofia, Emagrecimento"
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 border rounded-md">
+              {SPECIALTY_OPTIONS.map((specialty) => (
+                <label
+                  key={specialty}
+                  className="flex items-center gap-2 text-xs cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedSpecialties.includes(specialty)}
+                    onChange={() => handleToggleSpecialty(specialty)}
+                    className="w-4 h-4"
+                  />
+                  <span>{specialty}</span>
+                </label>
+              ))}
+              <label className="flex items-center gap-2 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedSpecialties.includes(OTHER_SPECIALTY)}
+                  onChange={() => handleToggleSpecialty(OTHER_SPECIALTY)}
+                  className="w-4 h-4"
+                />
+                <span>{OTHER_SPECIALTY}</span>
+              </label>
+            </div>
+            {selectedSpecialties.includes(OTHER_SPECIALTY) ? (
+              <input
+                value={customSpecialties}
+                onChange={(e) => setCustomSpecialties(e.target.value)}
+                className="w-full border rounded-md p-2 text-xs"
+                placeholder="Especifique outras especialidades (separadas por vírgula)"
+              />
+            ) : null}
           </div>
 
           <div className="space-y-1">
