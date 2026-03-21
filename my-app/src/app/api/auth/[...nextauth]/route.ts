@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -26,50 +27,30 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.name = user.name || null;
-        console.log("[jwt] Token updated with user:", {
-          id: token.id,
-          name: token.name,
-        });
-      } else {
-        console.log("[jwt] No user, token as-is:", {
-          id: token.id,
-          sub: token.sub,
-        });
+        token.userType = user.userType || null;
+        logger.info({ userId: user.id }, "JWT token refreshed with user data");
       }
       return token;
     },
     async session({ session, token }) {
-      const userId = token?.id || token?.sub;
+      const userId = token?.id as string | undefined;
 
       if (!userId) {
-        console.error("[session] Erro: sem userId no token", {
-          id: token?.id,
-          sub: token?.sub,
-        });
+        logger.error({ token }, "No userId in JWT token");
         return session;
       }
 
-      session.user.id = userId as string;
+      session.user.id = userId;
       session.user.name = (token?.name as string | null) || null;
-
-      // Buscar dados atualizados do banco para garantir sessão sincronizada
-      try {
-        const user = await prisma.user.findUnique({
-          where: { id: userId as string },
-          select: { name: true, userType: true },
-        });
-        session.user.name = user?.name || null;
-        session.user.userType = user?.userType || null;
-      } catch (error) {
-        console.error("[session] Erro ao buscar dados do usuário:", error);
-      }
+      // Use userType from JWT token (stored in signin callback)
+      session.user.userType = (token?.userType as string | null) || null;
 
       return session;
     },
   },
   events: {
     async signIn({ user }) {
-      console.log("✓ User signed in:", user.id, user.email);
+      logger.info({ userId: user.id, email: user.email }, "User signed in");
     },
   },
 };

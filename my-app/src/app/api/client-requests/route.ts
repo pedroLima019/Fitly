@@ -1,39 +1,83 @@
 import { getServerSession } from "next-auth/next";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "../auth/[...nextauth]/route";
+import {
+  ClientRequestPostSchema,
+  ClientRequestPatchSchema,
+} from "@/lib/validators";
+import { logger } from "@/lib/logger";
+import { rateLimitMiddleware } from "@/lib/rate-limit";
+import { UserType, RequestStatus } from "@/src/generated/prisma";
 
-const allowedStatuses = new Set(["pending", "accepted", "rejected"]);
+const allowedStatuses = new Set([
+  RequestStatus.pending,
+  RequestStatus.accepted,
+  RequestStatus.rejected,
+]);
 const allowedTypes = new Set(["received", "sent"]);
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  try {
+    const session = await getServerSession(authOptions);
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
-  }
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
+    }
 
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status") ?? "pending";
-  const type = searchParams.get("type") ?? "received";
+    const { searchParams } = new URL(req.url);
+    const status = (searchParams.get("status") ??
+      RequestStatus.pending) as RequestStatus;
+    const type = searchParams.get("type") ?? "received";
 
-  if (!allowedStatuses.has(status)) {
-    return NextResponse.json({ error: "Status invalido" }, { status: 400 });
-  }
+    if (!allowedStatuses.has(status)) {
+      logger.warn(
+        { userId: session.user.id, status },
+        "Invalid status requested",
+      );
+      return NextResponse.json({ error: "Status invalido" }, { status: 400 });
+    }
 
-  if (!allowedTypes.has(type)) {
-    return NextResponse.json({ error: "Tipo invalido" }, { status: 400 });
-  }
+    if (!allowedTypes.has(type)) {
+      logger.warn({ userId: session.user.id, type }, "Invalid type requested");
+      return NextResponse.json({ error: "Tipo invalido" }, { status: 400 });
+    }
 
-  if (type === "received") {
+    if (type === "received") {
+      const requests = await prisma.clientRequest.findMany({
+        where: {
+          personalId: session.user.id,
+          status,
+          deletedAt: null, // Exclude soft-deleted records
+        },
+        include: {
+          student: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+              userType: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50, // Pagination
+      });
+
+      return NextResponse.json({ requests });
+    }
+
     const requests = await prisma.clientRequest.findMany({
       where: {
-        personalId: session.user.id,
+        studentId: session.user.id,
         status,
+        deletedAt: null, // Exclude soft-deleted records
       },
       include: {
-        student: {
+        personal: {
           select: {
             id: true,
             name: true,
@@ -44,116 +88,96 @@ export async function GET(req: NextRequest) {
         },
       },
       orderBy: { createdAt: "desc" },
+      take: 50, // Pagination
     });
 
     return NextResponse.json({ requests });
+  } catch (error) {
+    logger.error({ error }, "GET /api/client-requests failed");
+    const message =
+      error instanceof Error ? error.message : "Erro interno do servidor";
+    return NextResponse.json(
+      { error: `Erro ao carregar solicitacoes: ${message}` },
+      { status: 500 },
+    );
   }
-
-  const requests = await prisma.clientRequest.findMany({
-    where: {
-      studentId: session.user.id,
-      status,
-    },
-    include: {
-      personal: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
-          userType: true,
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return NextResponse.json({ requests });
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
-  }
-
   try {
-    const body = await req.json().catch(() => null);
-    const personalId = body?.personalId as string | undefined;
-    const message =
-      typeof body?.message === "string" ? body.message.trim() : "";
-    const objective =
-      typeof body?.objective === "string" ? body.objective.trim() : "";
-    const availability =
-      typeof body?.availability === "string" ? body.availability.trim() : "";
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
+    }
+
+    // Rate limiting: max 10 requests per minute per user
+    const rateLimitResult = rateLimitMiddleware(session.user.id, 10, 60 * 1000);
+    if (rateLimitResult instanceof NextResponse) {
+      logger.warn(
+        { userId: session.user.id },
+        "Rate limit exceeded for client request creation",
+      );
+      return rateLimitResult;
+    }
+
+    const body = await req.json().catch(() => ({}));
+
+    // Validate request body with Zod
+    const validatedData = ClientRequestPostSchema.parse(body);
+    const { personalId, objective, availability, message } = validatedData;
 
     const finalMessage =
-      message ||
-      [
-        objective ? `Objetivo: ${objective}` : "",
-        availability ? `Disponibilidade: ${availability}` : "",
-      ]
-        .filter(Boolean)
-        .join(" | ");
+      message || `Objetivo: ${objective} | Disponibilidade: ${availability}`;
 
-    if (!personalId) {
-      return NextResponse.json(
-        { error: "Personal obrigatorio" },
-        { status: 400 },
-      );
-    }
-
-    if (!objective) {
-      return NextResponse.json(
-        { error: "Objetivo obrigatorio" },
-        { status: 400 },
-      );
-    }
-
-    if (!availability) {
-      return NextResponse.json(
-        { error: "Disponibilidade obrigatoria" },
-        { status: 400 },
-      );
-    }
-
-    if (!finalMessage) {
-      return NextResponse.json(
-        { error: "Mensagem obrigatoria" },
-        { status: 400 },
-      );
-    }
-
+    // Verify student exists and has correct userType
     const student = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { id: true, userType: true },
     });
 
     if (!student) {
+      logger.error({ userId: session.user.id }, "Usuario nao encontrado");
       return NextResponse.json({ error: "Usuario invalido" }, { status: 401 });
     }
 
-    if (student.userType && student.userType !== "student") {
-      return NextResponse.json({ error: "Apenas aluno" }, { status: 403 });
+    if (student.userType !== UserType.student) {
+      logger.warn(
+        { userId: session.user.id, userType: student.userType },
+        "Non-student tried to create request",
+      );
+      return NextResponse.json(
+        { error: "Apenas alunos podem enviar solicitacoes" },
+        { status: 403 },
+      );
     }
 
+    // Verify personal exists and has correct userType
     const personal = await prisma.user.findUnique({
       where: { id: personalId },
       select: { id: true, userType: true },
     });
 
     if (!personal) {
+      logger.warn({ personalId }, "Personal nao encontrado");
       return NextResponse.json(
         { error: "Personal nao encontrado" },
         { status: 404 },
       );
     }
 
-    if (personal.userType && personal.userType !== "personal") {
-      return NextResponse.json({ error: "Personal invalido" }, { status: 400 });
+    if (personal.userType !== UserType.personal) {
+      logger.warn(
+        { personalId, userType: personal.userType },
+        "Non-personal user targeted",
+      );
+      return NextResponse.json(
+        { error: "Usuario nao e um personal" },
+        { status: 400 },
+      );
     }
 
+    // Check if already have active connection
     const existingLink = await prisma.personalStudent.findUnique({
       where: {
         studentId_personalId: {
@@ -164,24 +188,38 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingLink) {
-      return NextResponse.json({ error: "Vinculo ja existe" }, { status: 409 });
-    }
-
-    const existingRequest = await prisma.clientRequest.findFirst({
-      where: {
-        studentId: session.user.id,
-        personalId,
-        status: "pending",
-      },
-    });
-
-    if (existingRequest) {
+      logger.info(
+        { studentId: session.user.id, personalId },
+        "Connection already exists",
+      );
       return NextResponse.json(
-        { error: "Solicitacao pendente ja existe" },
+        { error: "Voce ja tem vinculo com este personal" },
         { status: 409 },
       );
     }
 
+    // Check for pending request
+    const existingRequest = await prisma.clientRequest.findFirst({
+      where: {
+        studentId: session.user.id,
+        personalId,
+        status: RequestStatus.pending,
+        deletedAt: null,
+      },
+    });
+
+    if (existingRequest) {
+      logger.info(
+        { studentId: session.user.id, personalId },
+        "Pending request already exists",
+      );
+      return NextResponse.json(
+        { error: "Voce ja tem uma solicitacao pendente com este personal" },
+        { status: 409 },
+      );
+    }
+
+    // Upsert: create new or update existing (e.g., if rejected before)
     const request = await prisma.clientRequest.upsert({
       where: {
         studentId_personalId: {
@@ -191,14 +229,15 @@ export async function POST(req: NextRequest) {
       },
       update: {
         message: finalMessage,
-        status: "pending",
+        status: RequestStatus.pending,
+        deletedAt: null, // Revert soft delete if it was deleted
         updatedAt: new Date(),
       },
       create: {
         studentId: session.user.id,
         personalId,
         message: finalMessage,
-        status: "pending",
+        status: RequestStatus.pending,
       },
       include: {
         personal: {
@@ -213,9 +252,22 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    logger.info(
+      { studentId: session.user.id, personalId, requestId: request.id },
+      "Client request created successfully",
+    );
+
     return NextResponse.json({ request }, { status: 201 });
   } catch (error) {
-    console.error("Erro ao criar solicitacao:", error);
+    if (error instanceof z.ZodError) {
+      logger.warn({ errors: error.errors }, "Request validation failed");
+      return NextResponse.json(
+        { error: "Dados invalidos: " + error.errors[0].message },
+        { status: 400 },
+      );
+    }
+
+    logger.error({ error }, "POST /api/client-requests failed");
     const errorMessage =
       error instanceof Error ? error.message : "Erro interno do servidor";
     return NextResponse.json(

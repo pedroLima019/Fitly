@@ -10,6 +10,17 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserType {
+  personal
+  student
+}
+
+enum RequestStatus {
+  pending
+  accepted
+  rejected
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -52,7 +63,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  userType      String?   // "personal" ou "student"
+  userType      UserType? // "personal" ou "student"
   specialties   String?
   location      String?
   bio           String?
@@ -106,7 +117,8 @@ model ClientRequest {
   student    User     @relation("StudentRequests", fields: [studentId], references: [id], onDelete: Cascade)
   personal   User     @relation("PersonalRequests", fields: [personalId], references: [id], onDelete: Cascade)
   message   String
-  status    String   @default("pending") // "pending", "accepted", "rejected"
+  status    RequestStatus @default(pending) // "pending", "accepted", "rejected"
+  deletedAt DateTime? // soft delete para auditoria
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
