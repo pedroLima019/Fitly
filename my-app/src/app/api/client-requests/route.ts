@@ -182,8 +182,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const request = await prisma.clientRequest.create({
-      data: {
+    const request = await prisma.clientRequest.upsert({
+      where: {
+        studentId_personalId: {
+          studentId: session.user.id,
+          personalId,
+        },
+      },
+      update: {
+        message: finalMessage,
+        status: "pending",
+        updatedAt: new Date(),
+      },
+      create: {
         studentId: session.user.id,
         personalId,
         message: finalMessage,
