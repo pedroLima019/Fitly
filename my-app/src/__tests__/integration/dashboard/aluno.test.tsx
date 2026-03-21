@@ -16,7 +16,6 @@ global.fetch = jest.fn();
 describe("StudentDashboard", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (global.fetch as jest.Mock).mockClear();
   });
 
   test("should render loading state when session is loading", () => {
