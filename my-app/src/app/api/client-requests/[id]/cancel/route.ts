@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "../../../auth/[...nextauth]/route";
 import { logger } from "@/lib/logger";
 import { rateLimitMiddleware } from "@/lib/rate-limit";
-import { RequestStatus } from "@prisma/client";
 
 export async function POST(
   req: NextRequest,
@@ -35,7 +34,7 @@ export async function POST(
       select: { studentId: true, status: true, personalId: true },
     });
 
-    if (!clientRequest || clientRequest.status !== RequestStatus.pending) {
+    if (!clientRequest || clientRequest.status !== "pending") {
       logger.warn(
         { requestId: id, userId: session.user.id, status: clientRequest?.status },
         "Cannot cancel non-pending request",
