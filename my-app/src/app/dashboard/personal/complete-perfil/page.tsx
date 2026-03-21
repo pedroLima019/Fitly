@@ -1,6 +1,7 @@
 "use client";
 
 import Header from "@/app/_components/Header";
+import { useCepLookup } from "@/hooks/useCepLookup";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -34,11 +35,24 @@ type ProfileForm = {
   bio: string;
   hourlyRate: string;
   pricePerSession: string;
+  street: string;
+  number: string;
+  complement: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
 };
 
 export default function CompletePerfil() {
   const router = useRouter();
   const { update } = useSession();
+  const {
+    loading: cepLoading,
+    error: cepError,
+    fetchAddress,
+    formatCep,
+  } = useCepLookup();
   const [form, setForm] = useState<ProfileForm>({
     name: "",
     specialties: "",
@@ -46,6 +60,13 @@ export default function CompletePerfil() {
     bio: "",
     hourlyRate: "",
     pricePerSession: "",
+    street: "",
+    number: "",
+    complement: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "Brasil",
   });
   const [chargeMode, setChargeMode] = useState<"hourly" | "perSession">(
     "hourly",
@@ -104,6 +125,13 @@ export default function CompletePerfil() {
           bio: data.profile?.bio ?? "",
           hourlyRate: data.profile?.hourlyRate?.toString() ?? "",
           pricePerSession: data.profile?.pricePerSession?.toString() ?? "",
+          street: data.profile?.street ?? "",
+          number: data.profile?.number ?? "",
+          complement: data.profile?.complement ?? "",
+          city: data.profile?.city ?? "",
+          state: data.profile?.state ?? "",
+          zipCode: data.profile?.zipCode ?? "",
+          country: data.profile?.country ?? "Brasil",
         };
 
         setForm(profileData);
@@ -173,6 +201,24 @@ export default function CompletePerfil() {
 
   const handleChange = (field: keyof ProfileForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCepChange = async (cep: string) => {
+    const formattedCep = formatCep(cep);
+    setForm((prev) => ({ ...prev, zipCode: formattedCep }));
+
+    if (formattedCep.replace(/\D/g, "").length === 8) {
+      const address = await fetchAddress(formattedCep);
+      if (address) {
+        setForm((prev) => ({
+          ...prev,
+          street: address.street,
+          city: address.city,
+          state: address.state,
+          complement: address.complement || prev.complement,
+        }));
+      }
+    }
   };
 
   const handleCancel = () => {
@@ -349,13 +395,117 @@ export default function CompletePerfil() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-semibold">Localização</label>
-            <input
-              value={form.location}
-              onChange={(e) => handleChange("location", e.target.value)}
-              className="w-full border rounded-md p-2 text-xs"
-              placeholder="Cidade / Bairro"
-            />
+            <label className="text-xs font-semibold">Endereço completo</label>
+            <div className="space-y-2">
+              <div>
+                <label className="text-xs text-zinc-600">Rua/Avenida</label>
+                <input
+                  value={form.street}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, street: e.target.value }))
+                  }
+                  className="w-full border rounded-md p-2 text-xs"
+                  placeholder="Ex: Rua das Flores"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-zinc-600">Número</label>
+                  <input
+                    value={form.number}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, number: e.target.value }))
+                    }
+                    className="w-full border rounded-md p-2 text-xs"
+                    placeholder="Ex: 123"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-zinc-600">Complemento</label>
+                  <input
+                    value={form.complement}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        complement: e.target.value,
+                      }))
+                    }
+                    className="w-full border rounded-md p-2 text-xs"
+                    placeholder="Ex: Apt 456"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-zinc-600">Cidade</label>
+                <input
+                  value={form.city}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, city: e.target.value }))
+                  }
+                  className="w-full border rounded-md p-2 text-xs"
+                  placeholder="Ex: São Paulo"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-zinc-600">Estado</label>
+                  <select
+                    value={form.state}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, state: e.target.value }))
+                    }
+                    className="w-full border rounded-md p-2 text-xs bg-white"
+                  >
+                    <option value="">Selecione</option>
+                    <option value="AC">Acre</option>
+                    <option value="AL">Alagoas</option>
+                    <option value="AP">Amapá</option>
+                    <option value="AM">Amazonas</option>
+                    <option value="BA">Bahia</option>
+                    <option value="CE">Ceará</option>
+                    <option value="DF">Distrito Federal</option>
+                    <option value="ES">Espírito Santo</option>
+                    <option value="GO">Goiás</option>
+                    <option value="MA">Maranhão</option>
+                    <option value="MT">Mato Grosso</option>
+                    <option value="MS">Mato Grosso do Sul</option>
+                    <option value="MG">Minas Gerais</option>
+                    <option value="PA">Pará</option>
+                    <option value="PB">Paraíba</option>
+                    <option value="PR">Paraná</option>
+                    <option value="PE">Pernambuco</option>
+                    <option value="PI">Piauí</option>
+                    <option value="RJ">Rio de Janeiro</option>
+                    <option value="RN">Rio Grande do Norte</option>
+                    <option value="RS">Rio Grande do Sul</option>
+                    <option value="RO">Rondônia</option>
+                    <option value="RR">Roraima</option>
+                    <option value="SC">Santa Catarina</option>
+                    <option value="SP">São Paulo</option>
+                    <option value="SE">Sergipe</option>
+                    <option value="TO">Tocantins</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-zinc-600">CEP</label>
+                  <input
+                    value={form.zipCode}
+                    onChange={(e) => handleCepChange(e.target.value)}
+                    disabled={cepLoading}
+                    className="w-full border rounded-md p-2 text-xs disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="Ex: 01310-100"
+                  />
+                  {cepLoading && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      Buscando endereço...
+                    </p>
+                  )}
+                  {cepError && (
+                    <p className="text-xs text-red-600 mt-1">{cepError}</p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-1">

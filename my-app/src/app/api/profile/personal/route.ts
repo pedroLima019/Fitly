@@ -40,6 +40,13 @@ export async function GET() {
           bio: true,
           hourlyRate: true,
           pricePerSession: true,
+          street: true,
+          number: true,
+          complement: true,
+          city: true,
+          state: true,
+          zipCode: true,
+          country: true,
         },
       });
       console.log("User encontrado:", user ? "✓ Sim" : "✗ Não");
@@ -127,6 +134,16 @@ export async function PATCH(req: Request) {
     const bio = typeof body?.bio === "string" ? body.bio.trim() : "";
     const chargeMode =
       typeof body?.chargeMode === "string" ? body.chargeMode : "hourly";
+    const street = typeof body?.street === "string" ? body.street.trim() : "";
+    const number = typeof body?.number === "string" ? body.number.trim() : "";
+    const complement =
+      typeof body?.complement === "string" ? body.complement.trim() : "";
+    const city = typeof body?.city === "string" ? body.city.trim() : "";
+    const state = typeof body?.state === "string" ? body.state.trim() : "";
+    const zipCode =
+      typeof body?.zipCode === "string" ? body.zipCode.trim() : "";
+    const country =
+      typeof body?.country === "string" ? body.country.trim() : "Brasil";
 
     let hourlyRate: number | null = null;
     let pricePerSession: number | null = null;
@@ -185,6 +202,13 @@ export async function PATCH(req: Request) {
         bio: bio || null,
         hourlyRate,
         pricePerSession,
+        street: street || null,
+        number: number || null,
+        complement: complement || null,
+        city: city || null,
+        state: state || null,
+        zipCode: zipCode || null,
+        country: country || "Brasil",
       },
       select: {
         id: true,
@@ -194,6 +218,13 @@ export async function PATCH(req: Request) {
         bio: true,
         hourlyRate: true,
         pricePerSession: true,
+        street: true,
+        number: true,
+        complement: true,
+        city: true,
+        state: true,
+        zipCode: true,
+        country: true,
       },
     });
     console.log("13. Usuário atualizado com sucesso:", updated);

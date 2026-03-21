@@ -36,6 +36,13 @@ export async function GET() {
           availability: true,
           workoutPlace: true,
           limitations: true,
+          street: true,
+          number: true,
+          complement: true,
+          city: true,
+          state: true,
+          zipCode: true,
+          country: true,
         },
       });
     } catch (error) {
@@ -115,6 +122,16 @@ export async function PATCH(req: Request) {
       typeof body?.workoutPlace === "string" ? body.workoutPlace.trim() : "";
     const limitations =
       typeof body?.limitations === "string" ? body.limitations.trim() : "";
+    const street = typeof body?.street === "string" ? body.street.trim() : "";
+    const number = typeof body?.number === "string" ? body.number.trim() : "";
+    const complement =
+      typeof body?.complement === "string" ? body.complement.trim() : "";
+    const city = typeof body?.city === "string" ? body.city.trim() : "";
+    const state = typeof body?.state === "string" ? body.state.trim() : "";
+    const zipCode =
+      typeof body?.zipCode === "string" ? body.zipCode.trim() : "";
+    const country =
+      typeof body?.country === "string" ? body.country.trim() : "Brasil";
 
     if (!name) {
       return NextResponse.json(
@@ -135,6 +152,13 @@ export async function PATCH(req: Request) {
           availability: availability || null,
           workoutPlace: workoutPlace || null,
           limitations: limitations || null,
+          street: street || null,
+          number: number || null,
+          complement: complement || null,
+          city: city || null,
+          state: state || null,
+          zipCode: zipCode || null,
+          country: country || "Brasil",
         },
         select: {
           id: true,
@@ -145,6 +169,13 @@ export async function PATCH(req: Request) {
           availability: true,
           workoutPlace: true,
           limitations: true,
+          street: true,
+          number: true,
+          complement: true,
+          city: true,
+          state: true,
+          zipCode: true,
+          country: true,
         },
       });
     } catch (error) {
@@ -173,6 +204,13 @@ export async function PATCH(req: Request) {
         availability: null,
         workoutPlace: null,
         limitations: null,
+        street: null,
+        number: null,
+        complement: null,
+        city: null,
+        state: null,
+        zipCode: null,
+        country: "Brasil",
       };
     }
 

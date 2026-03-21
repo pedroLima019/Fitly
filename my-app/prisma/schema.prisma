@@ -64,7 +64,7 @@ model User {
   image         String?
   userType      UserType? // "personal" ou "student"
   specialties   String?
-  location      String?
+  location      String?   // Mantém pela compatibilidade, pode ser removido depois
   bio           String?
   hourlyRate    Float?
   pricePerSession Float?
@@ -73,6 +73,16 @@ model User {
   availability  String?
   workoutPlace  String?
   limitations   String?
+  
+  // Endereço detalhado
+  street        String?
+  number        String?
+  complement    String?
+  city          String?
+  state         String?
+  zipCode       String?
+  country       String?   @default("Brasil")
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
