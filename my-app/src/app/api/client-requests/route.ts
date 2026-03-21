@@ -78,113 +78,138 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => null);
-  const personalId = body?.personalId as string | undefined;
-  const message = typeof body?.message === "string" ? body.message.trim() : "";
-  const objective =
-    typeof body?.objective === "string" ? body.objective.trim() : "";
-  const availability =
-    typeof body?.availability === "string" ? body.availability.trim() : "";
+  try {
+    const body = await req.json().catch(() => null);
+    const personalId = body?.personalId as string | undefined;
+    const message =
+      typeof body?.message === "string" ? body.message.trim() : "";
+    const objective =
+      typeof body?.objective === "string" ? body.objective.trim() : "";
+    const availability =
+      typeof body?.availability === "string" ? body.availability.trim() : "";
 
-  const finalMessage =
-    message ||
-    [
-      objective ? `Objetivo: ${objective}` : "",
-      availability ? `Disponibilidade: ${availability}` : "",
-    ]
-      .filter(Boolean)
-      .join(" | ");
+    const finalMessage =
+      message ||
+      [
+        objective ? `Objetivo: ${objective}` : "",
+        availability ? `Disponibilidade: ${availability}` : "",
+      ]
+        .filter(Boolean)
+        .join(" | ");
 
-  if (!personalId) {
-    return NextResponse.json(
-      { error: "Personal obrigatorio" },
-      { status: 400 },
-    );
-  }
+    if (!personalId) {
+      return NextResponse.json(
+        { error: "Personal obrigatorio" },
+        { status: 400 },
+      );
+    }
 
-  if (!finalMessage) {
-    return NextResponse.json(
-      { error: "Mensagem obrigatoria" },
-      { status: 400 },
-    );
-  }
+    if (!objective) {
+      return NextResponse.json(
+        { error: "Objetivo obrigatorio" },
+        { status: 400 },
+      );
+    }
 
-  const student = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { id: true, userType: true },
-  });
+    if (!availability) {
+      return NextResponse.json(
+        { error: "Disponibilidade obrigatoria" },
+        { status: 400 },
+      );
+    }
 
-  if (!student) {
-    return NextResponse.json({ error: "Usuario invalido" }, { status: 401 });
-  }
+    if (!finalMessage) {
+      return NextResponse.json(
+        { error: "Mensagem obrigatoria" },
+        { status: 400 },
+      );
+    }
 
-  if (student.userType && student.userType !== "student") {
-    return NextResponse.json({ error: "Apenas aluno" }, { status: 403 });
-  }
+    const student = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, userType: true },
+    });
 
-  const personal = await prisma.user.findUnique({
-    where: { id: personalId },
-    select: { id: true, userType: true },
-  });
+    if (!student) {
+      return NextResponse.json({ error: "Usuario invalido" }, { status: 401 });
+    }
 
-  if (!personal) {
-    return NextResponse.json(
-      { error: "Personal nao encontrado" },
-      { status: 404 },
-    );
-  }
+    if (student.userType && student.userType !== "student") {
+      return NextResponse.json({ error: "Apenas aluno" }, { status: 403 });
+    }
 
-  if (personal.userType && personal.userType !== "personal") {
-    return NextResponse.json({ error: "Personal invalido" }, { status: 400 });
-  }
+    const personal = await prisma.user.findUnique({
+      where: { id: personalId },
+      select: { id: true, userType: true },
+    });
 
-  const existingLink = await prisma.personalStudent.findUnique({
-    where: {
-      studentId_personalId: {
-        studentId: session.user.id,
-        personalId,
-      },
-    },
-  });
+    if (!personal) {
+      return NextResponse.json(
+        { error: "Personal nao encontrado" },
+        { status: 404 },
+      );
+    }
 
-  if (existingLink) {
-    return NextResponse.json({ error: "Vinculo ja existe" }, { status: 409 });
-  }
+    if (personal.userType && personal.userType !== "personal") {
+      return NextResponse.json({ error: "Personal invalido" }, { status: 400 });
+    }
 
-  const existingRequest = await prisma.clientRequest.findFirst({
-    where: {
-      studentId: session.user.id,
-      personalId,
-      status: "pending",
-    },
-  });
-
-  if (existingRequest) {
-    return NextResponse.json(
-      { error: "Solicitacao pendente ja existe" },
-      { status: 409 },
-    );
-  }
-
-  const request = await prisma.clientRequest.create({
-    data: {
-      studentId: session.user.id,
-      personalId,
-      message: finalMessage,
-      status: "pending",
-    },
-    include: {
-      personal: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
-          userType: true,
+    const existingLink = await prisma.personalStudent.findUnique({
+      where: {
+        studentId_personalId: {
+          studentId: session.user.id,
+          personalId,
         },
       },
-    },
-  });
+    });
 
-  return NextResponse.json({ request }, { status: 201 });
+    if (existingLink) {
+      return NextResponse.json({ error: "Vinculo ja existe" }, { status: 409 });
+    }
+
+    const existingRequest = await prisma.clientRequest.findFirst({
+      where: {
+        studentId: session.user.id,
+        personalId,
+        status: "pending",
+      },
+    });
+
+    if (existingRequest) {
+      return NextResponse.json(
+        { error: "Solicitacao pendente ja existe" },
+        { status: 409 },
+      );
+    }
+
+    const request = await prisma.clientRequest.create({
+      data: {
+        studentId: session.user.id,
+        personalId,
+        message: finalMessage,
+        status: "pending",
+      },
+      include: {
+        personal: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            userType: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ request }, { status: 201 });
+  } catch (error) {
+    console.error("Erro ao criar solicitacao:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Erro interno do servidor";
+    return NextResponse.json(
+      { error: `Erro ao criar solicitacao: ${errorMessage}` },
+      { status: 500 },
+    );
+  }
 }

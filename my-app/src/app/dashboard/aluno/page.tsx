@@ -73,7 +73,17 @@ export default function StudentDashboard() {
         }),
       });
 
-      const data_ = await response.json();
+      const text = await response.text();
+      let data_;
+
+      try {
+        data_ = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        console.error("Erro ao fazer parse do JSON:", parseError);
+        console.error("Resposta recebida:", text);
+        setMessage("Erro ao processar resposta do servidor");
+        return;
+      }
 
       if (!response.ok) {
         setMessage(data_.error || "Erro ao enviar solicitação");
@@ -88,7 +98,10 @@ export default function StudentDashboard() {
       setMessage("Solicitação enviada com sucesso!");
     } catch (error) {
       console.error("Erro ao enviar solicitação:", error);
-      setMessage("Erro ao enviar solicitação");
+      setMessage(
+        "Erro ao enviar solicitação: " +
+          (error instanceof Error ? error.message : "Desconhecido"),
+      );
     } finally {
       setRequestingId(null);
     }
