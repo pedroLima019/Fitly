@@ -257,9 +257,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ request }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.warn({ errors: error.errors }, "Request validation failed");
+      logger.warn({ errors: error.issues }, "Request validation failed");
       return NextResponse.json(
-        { error: "Dados invalidos: " + error.errors[0].message },
+        { error: "Dados invalidos: " + error.issues[0].message },
         { status: 400 },
       );
     }

@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { UserType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 
@@ -43,7 +44,7 @@ export const authOptions: NextAuthOptions = {
       session.user.id = userId;
       session.user.name = (token?.name as string | null) || null;
       // Use userType from JWT token (stored in signin callback)
-      session.user.userType = (token?.userType as string | null) || null;
+      session.user.userType = (token?.userType as UserType | null) || null;
 
       return session;
     },

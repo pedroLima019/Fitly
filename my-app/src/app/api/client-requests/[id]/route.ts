@@ -196,9 +196,9 @@ export async function PATCH(
     return NextResponse.json({ error: "Ação inválida" }, { status: 400 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.warn({ errors: error.errors }, "PATCH validation failed");
+      logger.warn({ errors: error.issues }, "PATCH validation failed");
       return NextResponse.json(
-        { error: "Dados inválidos: " + error.errors[0].message },
+        { error: "Dados inválidos: " + error.issues[0].message },
         { status: 400 },
       );
     }
