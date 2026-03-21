@@ -54,7 +54,10 @@ export default function StudentDashboard() {
     loadPersonals();
   }, [status]);
 
-  const handleRequestPersonal = async (personalId: string) => {
+  const handleRequestPersonal = async (
+    personalId: string,
+    data: { objective: string; availability: string },
+  ) => {
     setRequestingId(personalId);
 
     try {
@@ -64,14 +67,16 @@ export default function StudentDashboard() {
         credentials: "include",
         body: JSON.stringify({
           personalId,
-          message: "Gostaria de trabalhar com você",
+          objective: data.objective,
+          availability: data.availability,
+          message: `${data.objective} - Disponível: ${data.availability}`,
         }),
       });
 
-      const data = await response.json();
+      const data_ = await response.json();
 
       if (!response.ok) {
-        setMessage(data.error || "Erro ao enviar solicitação");
+        setMessage(data_.error || "Erro ao enviar solicitação");
         return;
       }
 
@@ -86,6 +91,51 @@ export default function StudentDashboard() {
       setMessage("Erro ao enviar solicitação");
     } finally {
       setRequestingId(null);
+    }
+  };
+
+  const handleCancelRequest = async (personalId: string) => {
+    try {
+      const personal = personals.find((p) => p.id === personalId);
+      if (!personal) return;
+
+      const response = await fetch("/api/client-requests", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+      const requests = data.requests || [];
+      const request = requests.find((r: any) => r.personalId === personalId);
+
+      if (!request) {
+        setMessage("Solicitação não encontrada");
+        return;
+      }
+
+      const cancelResponse = await fetch(
+        `/api/client-requests/${request.id}/cancel`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
+
+      if (!cancelResponse.ok) {
+        const errorData = await cancelResponse.json();
+        setMessage(errorData.error || "Erro ao cancelar solicitação");
+        return;
+      }
+
+      setPersonals((prev) =>
+        prev.map((p) =>
+          p.id === personalId ? { ...p, requestStatus: "none" } : p,
+        ),
+      );
+      setMessage("Solicitação cancelada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao cancelar solicitação:", error);
+      setMessage("Erro ao cancelar solicitação");
     }
   };
 
@@ -140,6 +190,7 @@ export default function StudentDashboard() {
                 personal={personal}
                 requestingId={requestingId}
                 onRequestPersonal={handleRequestPersonal}
+                onCancelRequest={handleCancelRequest}
               />
             ))}
           </div>

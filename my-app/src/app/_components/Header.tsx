@@ -4,6 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { IoMdSettings } from "react-icons/io";
+import RequestNotificationBell from "./RequestNotificationBell";
 import {
   Sheet,
   SheetContent,
@@ -51,61 +52,80 @@ export default function Header() {
         </div>
       </div>
 
-      <Sheet>
-        <SheetTrigger asChild>
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <IoMdSettings size={24} className="text-[#0F172A] cursor-pointer" />
-          </button>
-        </SheetTrigger>
+      <div className="flex items-center space-x-2">
+        <RequestNotificationBell />
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <IoMdSettings
+                size={24}
+                className="text-[#0F172A] cursor-pointer"
+              />
+            </button>
+          </SheetTrigger>
 
-        <SheetContent className="p-1 bg-white border-0 shadow-2xl">
-          <SheetHeader>
-            <SheetTitle className="text-black">Configurações</SheetTitle>
-            <SheetDescription className="text-xs font-normal text-black">
-              Gerencie suas preferências e conta
-            </SheetDescription>
-          </SheetHeader>
+          <SheetContent className="p-1 bg-white border-0 shadow-2xl">
+            <SheetHeader>
+              <SheetTitle className="text-black">Configurações</SheetTitle>
+              <SheetDescription className="text-xs font-normal text-black">
+                Gerencie suas preferências e conta
+              </SheetDescription>
+            </SheetHeader>
 
-          <div className=" space-y-3 p-2">
-            <div className="border-b pb-4">
-              <h3 className="font-semibold text-sm mb-3 text-black">Perfil</h3>
-              <Link
-                href={profilePath}
-                className="text-black text-xs font-normal"
-              >
-                Editar informações pessoais
-              </Link>
-            </div>
-            <div className="border-b pb-4">
-              <h3 className="font-semibold text-sm mb-3 text-black">
-                Preferências
-              </h3>
-              <div className="space-y-3">
+            <div className=" space-y-3 p-2">
+              <div className="border-b pb-4">
+                <h3 className="font-semibold text-sm mb-3 text-black">
+                  Perfil
+                </h3>
+                <Link
+                  href={profilePath}
+                  className="text-black text-xs font-normal"
+                >
+                  Editar informações pessoais
+                </Link>
+                {session?.user?.userType === "personal" && (
+                  <>
+                    <div className="my-2" />
+                    <Link
+                      href="/dashboard/personal/solicitacoes"
+                      className="text-black text-xs font-normal"
+                    >
+                      Ver solicitações de alunos
+                    </Link>
+                  </>
+                )}
+              </div>
+              <div className="border-b pb-4">
+                <h3 className="font-semibold text-sm mb-3 text-black">
+                  Preferências
+                </h3>
+                <div className="space-y-3">
+                  <button className="text-xs text-black hover:text-gray-900 block w-full text-left font-normal">
+                    Notificações
+                  </button>
+                  <button className="text-xs text-black hover:text-gray-900 block w-full text-left font-normal">
+                    Tema
+                  </button>
+                </div>
+              </div>
+              <div className="border-b pb-4">
+                <h3 className="font-semibold text-sm mb-3 text-black">Conta</h3>
                 <button className="text-xs text-black hover:text-gray-900 block w-full text-left font-normal">
-                  Notificações
+                  Alterar senha
                 </button>
-                <button className="text-xs text-black hover:text-gray-900 block w-full text-left font-normal">
-                  Tema
+              </div>
+              <div className="pt-2">
+                <button
+                  onClick={handleLogout}
+                  className="w-full bg-red-600 text-white flex items-center justify-center p-1.5 rounded-lg hover:bg-red-700 transition-colors text-xs font-medium"
+                >
+                  Sair da conta
                 </button>
               </div>
             </div>
-            <div className="border-b pb-4">
-              <h3 className="font-semibold text-sm mb-3 text-black">Conta</h3>
-              <button className="text-xs text-black hover:text-gray-900 block w-full text-left font-normal">
-                Alterar senha
-              </button>
-            </div>
-            <div className="pt-2">
-              <button
-                onClick={handleLogout}
-                className="w-full bg-red-600 text-white flex items-center justify-center p-1.5 rounded-lg hover:bg-red-700 transition-colors text-xs font-medium"
-              >
-                Sair da conta
-              </button>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
+          </SheetContent>
+        </Sheet>
+      </div>
     </header>
   );
 }

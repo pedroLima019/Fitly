@@ -1,4 +1,6 @@
+import { useState } from "react";
 import Image from "next/image";
+import RequestModal from "./RequestModal";
 
 export type PersonalCardData = {
   id: string;
@@ -16,7 +18,11 @@ export type PersonalCardData = {
 type PersonalCardProps = {
   personal: PersonalCardData;
   requestingId: string | null;
-  onRequestPersonal: (personalId: string) => void;
+  onRequestPersonal: (
+    personalId: string,
+    data: { objective: string; availability: string },
+  ) => void;
+  onCancelRequest?: (requestId: string) => void;
 };
 
 const formatPrice = (price: number | null) => {
@@ -44,7 +50,37 @@ export default function PersonalCard({
   personal,
   requestingId,
   onRequestPersonal,
+  onCancelRequest,
 }: PersonalCardProps) {
+  const [showModal, setShowModal] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
+
+  const handleRequestClick = () => {
+    setShowModal(true);
+  };
+
+  const handleRequestSubmit = async (data: {
+    objective: string;
+    availability: string;
+  }) => {
+    await onRequestPersonal(personal.id, data);
+    setShowModal(false);
+  };
+
+  const handleCancelRequest = async () => {
+    if (
+      !onCancelRequest ||
+      confirm("Tem certeza que quer cancelar a solicitação?")
+    ) {
+      setIsCanceling(true);
+      try {
+        await onCancelRequest?.(personal.id);
+      } finally {
+        setIsCanceling(false);
+      }
+    }
+  };
+
   return (
     <div className="bg-[#0F172A] rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow">
       <div className="px-3 pt-3 pb-4 text-white">
@@ -76,13 +112,13 @@ export default function PersonalCard({
         </div>
       </div>
 
-      <div className="px-3 pt-1 pb-5 space-y-3">
+      <div className="px-3 pt-1 pb-5 space-y-2.5">
         {personal.specialties ? (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1">
             {personal.specialties.split(",").map((spec, idx) => (
               <span
                 key={idx}
-                className="bg-blue-100 text-blue-700 text-xs p-1 rounded-md"
+                className="bg-white text-black text-[10px] p-1 rounded-sm font-medium"
               >
                 {spec.trim()}
               </span>
@@ -93,7 +129,7 @@ export default function PersonalCard({
         )}
 
         {personal.bio ? (
-          <p className="text-xs text-white line-clamp-3">{personal.bio}</p>
+          <p className="text-[10px] text-white line-clamp-3">{personal.bio}</p>
         ) : null}
 
         <div className="border-t border-white pt-2 space-y-1">
@@ -121,17 +157,49 @@ export default function PersonalCard({
         </div>
       </div>
 
-      <button
-        onClick={() => onRequestPersonal(personal.id)}
-        disabled={
-          personal.requestStatus !== "none" || requestingId === personal.id
-        }
-        className="mx-3 mb-3 mt-1 w-[calc(100%-1.5rem)] p-2 rounded-md text-xs font-medium text-black hover:opacity-90 bg-white"
-      >
-        {requestingId === personal.id
-          ? "Enviando..."
-          : getButtonText(personal.requestStatus)}
-      </button>
+      <div className="mx-3 mb-3 mt-1 space-y-2 flex-col flex">
+        {personal.requestStatus === "pending" && (
+          <button
+            onClick={handleCancelRequest}
+            disabled={isCanceling}
+            className="w-full p-2 rounded-md text-xs font-medium text-yellow-800 bg-yellow-100 hover:bg-yellow-200 disabled:opacity-70"
+          >
+            {isCanceling ? "Cancelando..." : "Cancelar solicitação"}
+          </button>
+        )}
+
+        <button
+          onClick={handleRequestClick}
+          disabled={
+            (personal.requestStatus !== "none" &&
+              personal.requestStatus !== "rejected") ||
+            requestingId === personal.id
+          }
+          className={`w-full p-2 rounded-md text-xs font-medium ${
+            personal.requestStatus === "none"
+              ? "text-black bg-white hover:opacity-90"
+              : personal.requestStatus === "pending"
+                ? "text-yellow-800 bg-yellow-50 cursor-default"
+                : personal.requestStatus === "accepted"
+                  ? "text-white bg-[#319F43] cursor-default"
+                  : personal.requestStatus === "rejected"
+                    ? "text-gray-600 bg-gray-100 hover:opacity-90"
+                    : "text-black bg-white"
+          }`}
+        >
+          {requestingId === personal.id
+            ? "Enviando..."
+            : getButtonText(personal.requestStatus)}
+        </button>
+      </div>
+
+      <RequestModal
+        personalName={personal.name || "Personal"}
+        isOpen={showModal}
+        isLoading={requestingId === personal.id}
+        onClose={() => setShowModal(false)}
+        onSubmit={handleRequestSubmit}
+      />
     </div>
   );
 }

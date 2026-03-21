@@ -14,7 +14,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
   }
 
-  const { action } = await req.json();
+  const { action, reason } = await req.json();
 
   if (!["approve", "reject"].includes(action)) {
     return NextResponse.json({ error: "Ação inválida" }, { status: 400 });
@@ -90,9 +90,17 @@ export async function PATCH(
         { status: 200 },
       );
     } else {
+      const rejectionReason = typeof reason === "string" ? reason.trim() : "";
+      const rejectionMessage = rejectionReason
+        ? `REJECTED: ${rejectionReason}`
+        : "REJECTED";
+
       await prisma.clientRequest.update({
         where: { id },
-        data: { status: "rejected" },
+        data: {
+          status: "rejected",
+          message: `${clientRequest.message}\n${rejectionMessage}`,
+        },
       });
 
       return NextResponse.json(
