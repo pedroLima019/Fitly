@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "../../../auth/[...nextauth]/route";
 import { logger } from "@/lib/logger";
 import { rateLimitMiddleware } from "@/lib/rate-limit";
-import { RequestStatus } from "@/src/generated/prisma";
+import { RequestStatus } from "@prisma/client";
 
 export async function POST(
   req: NextRequest,

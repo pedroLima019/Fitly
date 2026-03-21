@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
 export class ApiError extends Error {
@@ -32,9 +31,11 @@ export async function parseJsonResponse<T>(response: Response, schema?: z.ZodSch
     return data as T;
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const firstError = error.issues?.[0];
+      const msg = firstError?.message || "Erro na validação";
       throw new ApiError(
         response.status,
-        `Resposta inválida do servidor: ${error.errors[0].message}`,
+        `Resposta inválida do servidor: ${msg}`,
       );
     }
     throw new ApiError(
@@ -53,7 +54,7 @@ export const ApiResponseSchema = z.object({
   data: z.any().optional(),
 });
 
-export type ApiResponse<T = any> = {
+export type ApiResponse<T = unknown> = {
   error?: string;
   message?: string;
   data?: T;

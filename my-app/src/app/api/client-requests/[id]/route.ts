@@ -6,7 +6,7 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 import { ClientRequestPatchSchema } from "@/lib/validators";
 import { logger } from "@/lib/logger";
 import { rateLimitMiddleware } from "@/lib/rate-limit";
-import { RequestStatus, UserType } from "@/src/generated/prisma";
+import { RequestStatus, UserType } from "@prisma/client";
 
 export async function PATCH(
   req: NextRequest,

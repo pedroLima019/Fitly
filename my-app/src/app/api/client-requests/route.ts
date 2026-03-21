@@ -4,13 +4,10 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "../auth/[...nextauth]/route";
-import {
-  ClientRequestPostSchema,
-  ClientRequestPatchSchema,
-} from "@/lib/validators";
+import { ClientRequestPostSchema } from "@/lib/validators";
 import { logger } from "@/lib/logger";
 import { rateLimitMiddleware } from "@/lib/rate-limit";
-import { UserType, RequestStatus } from "@/src/generated/prisma";
+import { UserType, RequestStatus } from "@prisma/client";
 
 const allowedStatuses = new Set([
   RequestStatus.pending,
