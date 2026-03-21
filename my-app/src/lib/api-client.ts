@@ -13,7 +13,10 @@ export class ApiError extends Error {
 /**
  * Safely parse JSON response
  */
-export async function parseJsonResponse<T>(response: Response, schema?: z.ZodSchema<T>): Promise<T> {
+export async function parseJsonResponse<T>(
+  response: Response,
+  schema?: z.ZodSchema<T>,
+): Promise<T> {
   const text = await response.text();
 
   if (!text) {

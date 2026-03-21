@@ -11,16 +11,20 @@ Realizei uma auditoria completa do projeto Fitly como desenvolvedor senior e imp
 ## 🔴 Problemas Críticos Corrigidos
 
 ### 1. **Enums no Prisma** ✅
+
 **Antes:** `userType String?` | `status String`
 **Depois:** `userType UserType?` | `status RequestStatus`
 
-**Por quê:** 
+**Por quê:**
+
 - Validação em nível de BD (mais seguro)
 - Tsc garante valores válidos em compile-time
 - Elimina overhead de validação em runtime
 
 ### 2. **N+1 Query em Session Callback** ✅
+
 **Antes:**
+
 ```typescript
 async session({ session, token }) {
   // Extra query toda sessão!
@@ -30,6 +34,7 @@ async session({ session, token }) {
 ```
 
 **Depois:**
+
 ```typescript
 async jwt({ token, user }) {
   token.userType = user.userType; // Cache em JWT
@@ -43,14 +48,17 @@ async session({ session, token }) {
 **Impacto:** -90% queries no BD para sessões autenticadas
 
 ### 3. **Validação Input com Limites** ✅
+
 **Antes:** `type string` sem limites → DoS vulnerability
 **Depois:** `Zod z.string().min(2).max(100)` → Type-safe + proteção
 
 ### 4. **Upsert Logic Quebrada** ✅
+
 **Problema:** Request rejeitado bloqueava novo request
 **Solução:** Permitir reenvio após rejeição via `upsert()` + `deletedAt: null`
 
 ### 5. **Soft Deletes para Auditoria** ✅
+
 - Antes: Hard delete (dados perdidos)
 - Depois: `deletedAt` timestamp (histó preservado)
 
@@ -59,6 +67,7 @@ async session({ session, token }) {
 ## 🟠 Segurança & Performance
 
 ### 6. **Rate Limiting** ✅
+
 ```typescript
 // Endpoints protegidos:
 - POST /api/client-requests: 10/min
@@ -67,10 +76,12 @@ async session({ session, token }) {
 ```
 
 ### 7. **Permissões Explícitas** ✅
+
 **Antes:** `if (userType && userType !== "student")` → null bypass!
 **Depois:** `if (userType !== UserType.student)` → Falha se não for exact
 
 ### 8. **Try-Catch em Todas as Queries** ✅
+
 - GET `/api/client-requests` agora tratado
 - Todos endpoints retornam 500 estruturado
 - Logs com stack trace
@@ -80,23 +91,23 @@ async session({ session, token }) {
 ## 🟡 Developer Experience
 
 ### 9. **Logging Estruturado com Pino** ✅
+
 ```typescript
 // Antes
 console.error("Erro:", error);
 
 // Depois
-logger.error(
-  { userId, personalId, error },
-  "client_request_creation_failed"
-);
+logger.error({ userId, personalId, error }, "client_request_creation_failed");
 ```
 
 **Benefícios:**
+
 - JSON estruturado em prod
 - Pretty printing em dev
 - Contexto na auditoria
 
 ### 10. **Validação Type-Safe com Zod** ✅
+
 - Request schemas para POST/PATCH
 - Parse estruturado com erros claros
 - Reutilizável entre frontend/backend
@@ -106,6 +117,7 @@ logger.error(
 ## 📊 Arquivos Criados/Modificados
 
 ### Novos Arquivos
+
 - `/src/lib/validators.ts` - Schemas Zod reutilizáveis
 - `/src/lib/logger.ts` - Logger estruturado Pino
 - `/src/lib/rate-limit.ts` - Rate limiter em memória
@@ -115,12 +127,14 @@ logger.error(
 - `/prisma/migrations/20260320_add_enums_and_soft_delete` - Migration
 
 ### Endpoints Refatorados
+
 - `POST /api/client-requests` - Zod validation + rate limit + logging
 - `GET /api/client-requests` - Try-catch + pagination + soft delete
 - `PATCH /api/client-requests/[id]` - Zod validation + rate limit + logging
 - `POST /api/client-requests/[id]/cancel` - Soft delete + rate limit
 
 ### Callbacks Otimizados
+
 - `src/app/api/auth/[...nextauth]/route.ts` - N+1 query removida
 
 ---
@@ -128,11 +142,13 @@ logger.error(
 ## 🧪 Como Testar
 
 ### 1. Validações Zod
+
 ```bash
 npm test -- src/__tests__/integration/api/client-requests.test.ts
 ```
 
 ### 2. Rate Limiting
+
 ```typescript
 // Deve retornar 429 após 10 requisições em 60s
 for (let i = 0; i < 15; i++) {
@@ -141,18 +157,20 @@ for (let i = 0; i < 15; i++) {
 ```
 
 ### 3. Soft Delete
+
 ```typescript
 // Cancelar request
-await fetch(`/api/client-requests/123/cancel`, { method: 'POST' });
+await fetch(`/api/client-requests/123/cancel`, { method: "POST" });
 
 // Request ainda no DB, mas com deletedAt
 const deleted = await prisma.clientRequest.findUnique({
-  where: { id: '123' },
-  select: { deletedAt: true } // não é null
+  where: { id: "123" },
+  select: { deletedAt: true }, // não é null
 });
 ```
 
 ### 4. Resubmit Após Rejeição
+
 ```typescript
 // 1. Criar request → accepted
 // 2. Rejeitar → status = rejected
@@ -164,15 +182,15 @@ const deleted = await prisma.clientRequest.findUnique({
 
 ## 📈 Métricas de Melhoria
 
-| Métrica | Antes | Depois | Δ |
-|---------|-------|--------|---|
-| DB Queries/sessão auth | 2 | 1 | -50% |
-| Input validation coverage | 30% | 100% | +233% |
-| Error handling coverage | 60% | 100% | +67% |
-| Type safety (endpoints) | 40% | 95% | +138% |
-| Auditoria (soft delete) | ❌ | ✅ | Enable |
-| Rate limiting | ❌ | ✅ | Enable |
-| Structured logging | ❌ | ✅ | Enable |
+| Métrica                   | Antes | Depois | Δ      |
+| ------------------------- | ----- | ------ | ------ |
+| DB Queries/sessão auth    | 2     | 1      | -50%   |
+| Input validation coverage | 30%   | 100%   | +233%  |
+| Error handling coverage   | 60%   | 100%   | +67%   |
+| Type safety (endpoints)   | 40%   | 95%    | +138%  |
+| Auditoria (soft delete)   | ❌    | ✅     | Enable |
+| Rate limiting             | ❌    | ✅     | Enable |
+| Structured logging        | ❌    | ✅     | Enable |
 
 ---
 
@@ -191,6 +209,7 @@ const deleted = await prisma.clientRequest.findUnique({
 ## ⚠️ Breaking Changes
 
 ### Existentes para Migração:
+
 ```sql
 -- Será executado automaticamente via prisma migrate deploy
 -- Dados de produção: fazer backup antes!
@@ -205,6 +224,7 @@ ALTER TABLE "ClientRequest" ADD COLUMN "deletedAt" TIMESTAMP;
 ```
 
 ### No Código:
+
 - ✅ Enums do Prisma (types auto-updated)
 - ✅ Session: `user.userType` agora `UserType | null` (não `string`)
 - ✅ API responses: Zod-validated (mais seguro)
@@ -214,24 +234,27 @@ ALTER TABLE "ClientRequest" ADD COLUMN "deletedAt" TIMESTAMP;
 ## 📚 Documentação de Uso
 
 ### Validators (Zod)
+
 ```typescript
-import { ClientRequestPostSchema } from '@/lib/validators';
+import { ClientRequestPostSchema } from "@/lib/validators";
 
 const validated = ClientRequestPostSchema.parse(body);
 // Throws ZodError se inválido
 ```
 
 ### Logger
+
 ```typescript
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 
 logger.info({ userId, action }, "Event happened");
 logger.error({ error, context }, "Something failed");
 ```
 
 ### Rate Limit
+
 ```typescript
-import { rateLimitMiddleware } from '@/lib/rate-limit';
+import { rateLimitMiddleware } from "@/lib/rate-limit";
 
 const result = rateLimitMiddleware(userId, 10, 60 * 1000);
 if (result instanceof NextResponse) {
@@ -240,8 +263,9 @@ if (result instanceof NextResponse) {
 ```
 
 ### API Client
+
 ```typescript
-import { parseJsonResponse } from '@/lib/api-client';
+import { parseJsonResponse } from "@/lib/api-client";
 
 const data = await parseJsonResponse(response, SomeZodSchema);
 ```

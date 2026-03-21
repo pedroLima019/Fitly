@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "../../../auth/[...nextauth]/route";
 import { logger } from "@/lib/logger";
 import { rateLimitMiddleware } from "@/lib/rate-limit";
+import { RequestStatus } from "@prisma/client";
 
 export async function POST(
   req: NextRequest,
@@ -20,7 +21,10 @@ export async function POST(
     // Rate limiting: max 20 cancellations per minute per user
     const rateLimitResult = rateLimitMiddleware(session.user.id, 20, 60 * 1000);
     if (rateLimitResult instanceof NextResponse) {
-      logger.warn({ userId: session.user.id }, "Rate limit exceeded for cancel requests");
+      logger.warn(
+        { userId: session.user.id },
+        "Rate limit exceeded for cancel requests",
+      );
       return rateLimitResult;
     }
 
@@ -34,9 +38,13 @@ export async function POST(
       select: { studentId: true, status: true, personalId: true },
     });
 
-    if (!clientRequest || clientRequest.status !== "pending") {
+    if (!clientRequest || clientRequest.status !== RequestStatus.pending) {
       logger.warn(
-        { requestId: id, userId: session.user.id, status: clientRequest?.status },
+        {
+          requestId: id,
+          userId: session.user.id,
+          status: clientRequest?.status,
+        },
         "Cannot cancel non-pending request",
       );
       return NextResponse.json(
@@ -47,7 +55,11 @@ export async function POST(
 
     if (clientRequest.studentId !== session.user.id) {
       logger.warn(
-        { requestId: id, userId: session.user.id, studentId: clientRequest.studentId },
+        {
+          requestId: id,
+          userId: session.user.id,
+          studentId: clientRequest.studentId,
+        },
         "Unauthorized cancel attempt",
       );
       return NextResponse.json({ error: "Permissão negada" }, { status: 403 });
@@ -63,7 +75,11 @@ export async function POST(
     });
 
     logger.info(
-      { requestId: id, studentId: session.user.id, personalId: clientRequest.personalId },
+      {
+        requestId: id,
+        studentId: session.user.id,
+        personalId: clientRequest.personalId,
+      },
       "Request cancelled successfully",
     );
 
@@ -72,7 +88,8 @@ export async function POST(
     });
   } catch (error) {
     logger.error({ error }, "POST /api/client-requests/[id]/cancel failed");
-    const message = error instanceof Error ? error.message : "Erro interno do servidor";
+    const message =
+      error instanceof Error ? error.message : "Erro interno do servidor";
     return NextResponse.json(
       { error: `Erro ao cancelar solicitação: ${message}` },
       { status: 500 },

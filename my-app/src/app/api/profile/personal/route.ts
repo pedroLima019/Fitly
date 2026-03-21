@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { UserType } from "@prisma/client";
 
 export async function GET() {
   try {
@@ -58,7 +59,7 @@ export async function GET() {
       );
     }
 
-    if (user.userType !== "personal") {
+    if (user.userType !== UserType.personal) {
       console.log("⚠️ User não é personal, userType:", user.userType);
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
@@ -102,7 +103,7 @@ export async function PATCH(req: Request) {
     });
     console.log("5. Usuário encontrado:", user);
 
-    if (!user || user.userType !== "personal") {
+    if (!user || user.userType !== UserType.personal) {
       console.log("6. Usuário não é personal");
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }

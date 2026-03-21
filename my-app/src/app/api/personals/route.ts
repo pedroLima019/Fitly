@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { UserType } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest) {
 
     const personals = await prisma.user.findMany({
       where: {
-        userType: "personal",
+        userType: UserType.personal,
       },
       select: {
         id: true,

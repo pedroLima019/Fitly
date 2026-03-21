@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { UserType } from "@prisma/client";
 
 const isUnknownFieldError = (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
@@ -65,7 +66,7 @@ export async function GET() {
         : null;
     }
 
-    if (!user || user.userType !== "student") {
+    if (!user || user.userType !== UserType.student) {
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
 
@@ -92,7 +93,7 @@ export async function PATCH(req: Request) {
       select: { id: true, userType: true },
     });
 
-    if (!user || user.userType !== "student") {
+    if (!user || user.userType !== UserType.student) {
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
 

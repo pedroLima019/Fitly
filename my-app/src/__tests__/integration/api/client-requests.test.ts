@@ -1,7 +1,7 @@
 /**
  * Integration tests for ClientRequest endpoints
  * Run with: npm test -- src/__tests__/integration/api/client-requests.test.ts
- * 
+ *
  * NOTE: These tests are currently commented out pending jest.config.ts TypeScript support
  * Uncomment when Jest is configured to handle TypeScript test files
  */

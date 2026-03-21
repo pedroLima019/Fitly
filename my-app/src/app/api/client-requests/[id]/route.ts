@@ -23,7 +23,10 @@ export async function PATCH(
     // Rate limiting: max 50 requests per minute per user
     const rateLimitResult = rateLimitMiddleware(session.user.id, 50, 60 * 1000);
     if (rateLimitResult instanceof NextResponse) {
-      logger.warn({ userId: session.user.id }, "Rate limit exceeded for PATCH requests");
+      logger.warn(
+        { userId: session.user.id },
+        "Rate limit exceeded for PATCH requests",
+      );
       return rateLimitResult;
     }
 
@@ -47,7 +50,10 @@ export async function PATCH(
     });
 
     if (!clientRequest || clientRequest.deletedAt) {
-      logger.warn({ requestId: id, userId: session.user.id }, "Request not found or soft-deleted");
+      logger.warn(
+        { requestId: id, userId: session.user.id },
+        "Request not found or soft-deleted",
+      );
       return NextResponse.json(
         { error: "Solicitação não encontrada" },
         { status: 404 },
@@ -57,7 +63,11 @@ export async function PATCH(
     // Verify authorization: only personal can approve/reject
     if (clientRequest.personalId !== session.user.id) {
       logger.warn(
-        { requestId: id, userId: session.user.id, personalId: clientRequest.personalId },
+        {
+          requestId: id,
+          userId: session.user.id,
+          personalId: clientRequest.personalId,
+        },
         "Unauthorized PATCH attempt",
       );
       return NextResponse.json({ error: "Permissão negada" }, { status: 403 });
@@ -66,7 +76,10 @@ export async function PATCH(
     // Verify user is actually a personal
     if (clientRequest.personal.userType !== UserType.personal) {
       logger.error({ userId: session.user.id }, "User is not a personal");
-      return NextResponse.json({ error: "Usuario nao e um personal" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Usuario nao e um personal" },
+        { status: 403 },
+      );
     }
 
     if (clientRequest.status !== RequestStatus.pending) {
@@ -93,7 +106,10 @@ export async function PATCH(
 
       if (existingLink) {
         logger.warn(
-          { studentId: clientRequest.studentId, personalId: clientRequest.personalId },
+          {
+            studentId: clientRequest.studentId,
+            personalId: clientRequest.personalId,
+          },
           "Connection already exists",
         );
         return NextResponse.json(
@@ -106,7 +122,7 @@ export async function PATCH(
       await Promise.all([
         prisma.clientRequest.update({
           where: { id },
-          data: { 
+          data: {
             status: RequestStatus.accepted,
             updatedAt: new Date(),
           },
@@ -120,7 +136,11 @@ export async function PATCH(
       ]);
 
       logger.info(
-        { requestId: id, studentId: clientRequest.studentId, personalId: clientRequest.personalId },
+        {
+          requestId: id,
+          studentId: clientRequest.studentId,
+          personalId: clientRequest.personalId,
+        },
         "Request approved and connection created",
       );
 
@@ -156,7 +176,11 @@ export async function PATCH(
       });
 
       logger.info(
-        { requestId: id, studentId: clientRequest.studentId, personalId: clientRequest.personalId },
+        {
+          requestId: id,
+          studentId: clientRequest.studentId,
+          personalId: clientRequest.personalId,
+        },
         "Request rejected",
       );
 
@@ -180,7 +204,8 @@ export async function PATCH(
     }
 
     logger.error({ error }, "PATCH /api/client-requests/[id] failed");
-    const message = error instanceof Error ? error.message : "Erro interno do servidor";
+    const message =
+      error instanceof Error ? error.message : "Erro interno do servidor";
     return NextResponse.json(
       { error: `Erro ao processar solicitação: ${message}` },
       { status: 500 },
