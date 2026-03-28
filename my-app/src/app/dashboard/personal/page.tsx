@@ -28,36 +28,32 @@ export default function PersonalDashboard() {
       <Header />
 
       {/* Navigation Cards */}
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900">
-          Bem-vindo, {session?.user?.name || "Personal"}!
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-8 text-black text-center">
+          Bem-vindo, <br /> {session?.user?.name || "Personal"}!
         </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Conversas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
             onClick={() => router.push("/dashboard/personal/chats")}
-            className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 cursor-pointer hover:shadow-lg transition"
+            className="p-6 bg-green-700 rounded-lg  cursor-pointer hover:shadow-lg transition"
           >
-            <div className="text-4xl mb-4">💬</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
+            <h2 className="text-xl font-bold text-white mb-2">
               Minhas Conversas
             </h2>
-            <p className="text-gray-700">
+            <p className="text-gray-300">
               Chat com seus alunos e acompanhe o relacionamento
             </p>
           </div>
 
-          {/* Solicitações */}
           <div
             onClick={() => router.push("/dashboard/personal/solicitacoes")}
-            className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 cursor-pointer hover:shadow-lg transition"
+            className="p-6 bg-[#0F172A] rounded-lg  cursor-pointer hover:shadow-lg transition"
           >
-            <div className="text-4xl mb-4">📋</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
-              Solicitações
+            <h2 className="text-xl font-bold text-white mb-2">
+              Solicitações recebidas
             </h2>
-            <p className="text-gray-700">
+            <p className="text-gray-300">
               Gerencie suas solicitações de alunos
             </p>
           </div>
