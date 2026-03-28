@@ -167,17 +167,37 @@ export default function SolicitacoesPessoal() {
                 key={request.id}
                 className="bg-[#0F172A] text-white rounded-lg p-4 space-y-3"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-sm">
-                      {request.student.name}
-                    </h3>
-                    <p className="text-xs text-gray-300 mt-1">
-                      {request.message}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-2">
-                      {new Date(request.createdAt).toLocaleDateString("pt-BR")}
-                    </p>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3 flex-1">
+                    {/* Avatar */}
+                    <div className="flex-shrink-0">
+                      {request.student.image ? (
+                        <img
+                          src={request.student.image}
+                          alt={request.student.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                          {request.student.name?.charAt(0).toUpperCase() || "?"}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm">
+                        {request.student.name}
+                      </h3>
+                      <p className="text-xs text-gray-300 mt-1 line-clamp-2">
+                        {request.message}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {new Date(request.createdAt).toLocaleDateString(
+                          "pt-BR",
+                        )}
+                      </p>
+                    </div>
                   </div>
                 </div>
 

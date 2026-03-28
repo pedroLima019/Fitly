@@ -95,6 +95,11 @@ model User {
   requestsReceived ClientRequest[] @relation("PersonalRequests")
   students         PersonalStudent[] @relation("PersonalToStudents")
   personals        PersonalStudent[] @relation("StudentToPersonals")
+  
+  // Mensagens
+  sentMessages                  Message[] @relation("SentMessages")
+  personalChatConnections       Message[] @relation("PersonalInChat")
+  studentChatConnections        Message[] @relation("StudentInChat")
 }
 
 model Training {
@@ -144,5 +149,33 @@ model PersonalStudent {
   personal User @relation("PersonalToStudents", fields: [personalId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, personalId])
+}
+
+model Message {
+  id          String    @id @default(cuid())
+  
+  // Participantes da conversa
+  personalId  String
+  studentId   String
+  personal    User      @relation("PersonalInChat", fields: [personalId], references: [id], onDelete: Cascade)
+  student     User      @relation("StudentInChat", fields: [studentId], references: [id], onDelete: Cascade)
+  
+  // Quem enviou
+  senderId    String
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  
+  // Conteúdo
+  content     String
+  
+  // Status de leitura
+  readAt      DateTime?
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Índices para performance
+  @@index([personalId, studentId])
+  @@index([createdAt])
 }
 
