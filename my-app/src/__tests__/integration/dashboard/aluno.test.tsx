@@ -18,7 +18,8 @@ describe("StudentDashboard", () => {
   });
 
   test("should render loading state when session is loading", () => {
-    (useSession as jest.Mock).mockReturnValue({
+    const useSessionMock = useSession as unknown as jest.Mock;
+    useSessionMock.mockReturnValue({
       data: null,
       status: "loading",
     });
@@ -28,7 +29,8 @@ describe("StudentDashboard", () => {
   });
 
   test("should fetch and display personals on mount", async () => {
-    (useSession as jest.Mock).mockReturnValue({
+    const useSessionMock = useSession as unknown as jest.Mock;
+    useSessionMock.mockReturnValue({
       data: { user: { id: "1" } },
       status: "authenticated",
     });
@@ -48,7 +50,8 @@ describe("StudentDashboard", () => {
       },
     ];
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    const fetchMock = global.fetch as unknown as jest.Mock;
+    fetchMock.mockResolvedValueOnce({
       ok: true,
       text: async () => JSON.stringify({ personals: mockPersonals }),
     });
@@ -61,7 +64,8 @@ describe("StudentDashboard", () => {
   });
 
   test("should filter personals by search query", async () => {
-    (useSession as jest.Mock).mockReturnValue({
+    const useSessionMock = useSession as unknown as jest.Mock;
+    useSessionMock.mockReturnValue({
       data: { user: { id: "1" } },
       status: "authenticated",
     });
@@ -93,7 +97,8 @@ describe("StudentDashboard", () => {
       },
     ];
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    const fetchMock = global.fetch as unknown as jest.Mock;
+    fetchMock.mockResolvedValueOnce({
       ok: true,
       text: async () => JSON.stringify({ personals: mockPersonals }),
     });
@@ -116,12 +121,14 @@ describe("StudentDashboard", () => {
   });
 
   test("should show error message on fetch failure", async () => {
-    (useSession as jest.Mock).mockReturnValue({
+    const useSessionMock = useSession as unknown as jest.Mock;
+    useSessionMock.mockReturnValue({
       data: { user: { id: "1" } },
       status: "authenticated",
     });
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    const fetchMock = global.fetch as unknown as jest.Mock;
+    fetchMock.mockResolvedValueOnce({
       ok: false,
       text: async () => JSON.stringify({ error: "Erro ao carregar personals" }),
     });
@@ -136,12 +143,14 @@ describe("StudentDashboard", () => {
   });
 
   test("should show empty state when no personals found", async () => {
-    (useSession as jest.Mock).mockReturnValue({
+    const useSessionMock = useSession as unknown as jest.Mock;
+    useSessionMock.mockReturnValue({
       data: { user: { id: "1" } },
       status: "authenticated",
     });
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    const fetchMock = global.fetch as unknown as jest.Mock;
+    fetchMock.mockResolvedValueOnce({
       ok: true,
       text: async () => JSON.stringify({ personals: [] }),
     });

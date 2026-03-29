@@ -1,6 +1,7 @@
 "use client";
 
 import Header from "@/app/_components/Header";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -170,11 +171,13 @@ export default function SolicitacoesPessoal() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3 flex-1">
                     {/* Avatar */}
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       {request.student.image ? (
-                        <img
+                        <Image
                           src={request.student.image}
                           alt={request.student.name}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-full object-cover"
                         />
                       ) : (

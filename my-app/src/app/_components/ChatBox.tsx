@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useSocket } from "@/hooks/useSocket";
+import Image from "next/image";
 
 interface Message {
   id: string;
@@ -45,7 +46,6 @@ export default function ChatBox({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Buscar histórico ao montar
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -63,14 +63,15 @@ export default function ChatBox({
     };
 
     fetchMessages();
+
+    const interval = setInterval(fetchMessages, 2000);
+    return () => clearInterval(interval);
   }, [otherUserId]);
 
-  // Auto-scroll para última mensagem
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Marcar como lido quando abrir chat
   useEffect(() => {
     if (isConnected && messages.length > 0) {
       markAsRead(personalId, studentId);
@@ -83,7 +84,6 @@ export default function ChatBox({
     if (!newMessage.trim() || !session?.user?.id) return;
 
     try {
-      // Enviar via API
       const response = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,10 +97,7 @@ export default function ChatBox({
       if (response.ok) {
         const data = await response.json();
         setMessages((prev) => [...prev, data.message]);
-
-        // Enviar via Socket.io também
         sendMessage(personalId, studentId, newMessage, session.user.id);
-
         setNewMessage("");
         setIsTyping(false);
       }
@@ -117,12 +114,10 @@ export default function ChatBox({
       setTyping(personalId, studentId, true);
     }
 
-    // Limpar timeout anterior
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
 
-    // Parar digitação após 2 segundos sem digitar
     typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
       setTyping(personalId, studentId, false);
@@ -138,16 +133,13 @@ export default function ChatBox({
   }
 
   return (
-    <div className="flex flex-col h-96 bg-white rounded-lg border">
-      {/* Header */}
+    <div className="flex flex-col h-130 bg-white rounded-lg border">
       <div className="p-4 border-b flex items-center justify-between">
         <div>
           <h3 className="font-semibold text-gray-900">{otherUserName}</h3>
         </div>
       </div>
-
-      {/* Mensagens */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex flex-col overflow-y-auto p-3 space-y-5">
         {messages.length === 0 ? (
           <p className="text-center text-gray-500 text-sm">
             Nenhuma mensagem ainda
@@ -165,10 +157,12 @@ export default function ChatBox({
               {msg.senderId !== session?.user?.id && (
                 <div className="flex flex-col items-center">
                   {msg.sender.image ? (
-                    <img
+                    <Image
                       src={msg.sender.image}
                       alt={msg.sender.name || "User"}
-                      className="w-8 h-8 rounded-full"
+                      width={32}
+                      height={32}
+                      className="rounded-full"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs font-bold">
@@ -183,53 +177,60 @@ export default function ChatBox({
                 }`}
               >
                 <p
-                  className={`text-xs font-semibold mb-1 ${
+                  className={`text-sm font-semibold mb-1 ${
                     msg.senderId === session?.user?.id
-                      ? "text-right text-blue-600"
-                      : "text-left text-gray-700"
+                      ? "text-right "
+                      : "text-left "
                   }`}
                 >
                   {msg.sender.name || "Anônimo"}
                 </p>
                 <div
-                  className={`px-4 py-2 rounded-lg ${
+                  className={`px-4 py-2 rounded-lg  ${
                     msg.senderId === session?.user?.id
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-900"
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-200 "
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  <p
-                    className={`text-xs mt-1 ${
-                      msg.senderId === session?.user?.id
-                        ? "text-blue-100"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
+                  <p className="text-xs whitespace-pre-wrap">{msg.content}</p>
+                  <div className="flex items-center justify-between mt-1 gap-2">
+                    <p
+                      className={`text-[10px] ${
+                        msg.senderId === session?.user?.id
+                          ? "text-green-100"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {new Date(msg.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                    {msg.senderId === session?.user?.id && (
+                      <span
+                        className={`text-[10px] font-bold ${
+                          msg.readAt ? "text-blue-500" : "text-gray-500"
+                        }`}
+                      >
+                        {msg.readAt ? "✓✓" : "✓"}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           ))
         )}
 
-        {/* Indicador de digitação */}
         {isTyping && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5  p-3">
             <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
             <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-100"></div>
             <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-200"></div>
           </div>
         )}
-
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Input */}
       <form onSubmit={handleSendMessage} className="p-4 border-t flex gap-2">
         <input
           type="text"
@@ -241,7 +242,7 @@ export default function ChatBox({
         <button
           type="submit"
           disabled={!newMessage.trim()}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2  bg-green-700 text-white rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Enviar
         </button>

@@ -119,7 +119,9 @@ export default function StudentDashboard() {
 
       const data = await response.json();
       const requests = data.requests || [];
-      const request = requests.find((r: any) => r.personalId === personalId);
+      const request = requests.find(
+        (r: { personalId: string }) => r.personalId === personalId,
+      );
 
       if (!request) {
         setMessage("Solicitação não encontrada");
@@ -181,31 +183,24 @@ export default function StudentDashboard() {
     <main className="bg-white min-h-dvh">
       <Header />
 
-      <section className="max-w-6xl mx-auto p-3 md:p-6">
-        {/* Navigation Cards */}
-        <div className="grid grid-cols-1 gap-4 mb-8">
-          {/* Minhas Conversas */}
+      <section className="max-w-6xl mx-auto p-2 md:p-6">
+        <div className="grid grid-cols-1 gap-4 mb-4">
           <div
             onClick={() => router.push("/dashboard/aluno/chats")}
-            className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 cursor-pointer hover:shadow-lg transition"
+            className="p-4 bg-green-700 from-blue-50 to-blue-100 rounded-lg border border-blue-200 cursor-pointer hover:shadow-lg transition"
           >
-            <div className="text-4xl mb-4">💬</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
+            <h2 className="text-sm font-bold text-white mb-1">
               Minhas Conversas
             </h2>
-            <p className="text-gray-700 text-sm">
+            <p className="text-white text-xs">
               Chat com seus personals trainers
             </p>
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold mb-6 text-gray-900">
-          Buscar Personal Trainer
-        </h2>
-
         <PersonalSearchInput value={search} onChange={setSearch} />
         {message ? (
-          <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md text-sm">
+          <div className="mb-4 p-3 bg-blue-100 text-green-600 rounded-md text-sm">
             {message}
           </div>
         ) : null}

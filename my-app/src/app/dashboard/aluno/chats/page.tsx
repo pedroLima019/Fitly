@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import ChatBox from "@/components/ChatBox";
+import ChatBox from "@/app/_components/ChatBox";
+import Image from "next/image";
 
 interface Conversation {
   id: string;
@@ -18,7 +19,6 @@ interface Conversation {
 export default function StudentChatsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [selectedPersonal, setSelectedPersonal] = useState<{
@@ -35,8 +35,6 @@ export default function StudentChatsPage() {
 
     if (status === "authenticated" && session?.user?.id) {
       fetchConversations();
-
-      // Atualizar conversas a cada 5 segundos (polling)
       const interval = setInterval(() => {
         fetchConversations();
       }, 5000);
@@ -64,6 +62,30 @@ export default function StudentChatsPage() {
     }
   };
 
+  const handleSelectConversation = async (
+    conversationId: string,
+    personalId: string,
+    personalName: string | null,
+  ) => {
+    setSelectedChat(conversationId);
+    setSelectedPersonal({
+      id: personalId,
+      name: personalName,
+    });
+
+    // Marcar mensagens como lidas
+    try {
+      await fetch("/api/messages/mark-as-read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ otherUserId: personalId }),
+      });
+    } catch (error) {
+      console.error("Erro ao marcar como lido:", error);
+    }
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -81,14 +103,11 @@ export default function StudentChatsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-gray-900">
-        Minhas Conversas
-      </h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-xl font-bold mb-4 text-center">Minhas Conversas</h1>
 
-      <div className="grid grid-cols-3 gap-6">
-        {/* Lista de Conversas */}
-        <div className="col-span-1 bg-white rounded-lg border border-gray-200 overflow-hidden max-h-96 overflow-y-auto">
+      <div className="flex flex-col gap-2">
+        <div className=" bg-white rounded-lg border overflow-hidden max-h-20 overflow-y-auto">
           {conversations.length === 0 ? (
             <div className="p-4 text-center text-gray-500">
               <p>Nenhuma conversa iniciada</p>
@@ -99,27 +118,40 @@ export default function StudentChatsPage() {
                 <button
                   key={convo.id}
                   onClick={() => {
-                    setSelectedChat(convo.id);
-                    setSelectedPersonal({
-                      id: convo.personalId,
-                      name: convo.personalName,
-                    });
+                    handleSelectConversation(
+                      convo.id,
+                      convo.personalId,
+                      convo.personalName,
+                    );
                   }}
-                  className={`w-full text-left p-4 border-b last:border-b-0 hover:bg-gray-50 transition ${
-                    selectedChat === convo.id ? "bg-blue-50" : ""
-                  }`}
+                  className="w-full text-left p-4 border-b last:border-b-0 hover:bg-gray-300 duration-300 transition"
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-gray-900 truncate">
-                        {convo.personalName || "Personal"}
-                      </h3>
-                      <p className="text-xs text-gray-600 truncate">
-                        {convo.lastMessage || "Nenhuma mensagem"}
-                      </p>
+                  <div className="flex items-center justify-between ">
+                    <div className="flex gap-3 justify-center items-center">
+                      {convo.personalImage ? (
+                        <Image
+                          src={convo.personalImage}
+                          alt={convo.personalName || "Personal"}
+                          width={30}
+                          height={30}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center text-white text-xs font-bold">
+                          {convo.personalName?.charAt(0).toUpperCase() || "P"}
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-gray-900 text-sm">
+                          {convo.personalName || "Personal"}
+                        </h3>
+                        <p className="text-xs text-gray-600">
+                          {convo.lastMessage || "Nenhuma mensagem"}
+                        </p>
+                      </div>
                     </div>
-                    {convo.unreadCount > 0 && (
-                      <span className="ml-2 inline-block bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {convo.unreadCount > 0 && selectedChat !== convo.id && (
+                      <span className="flex items-center justify-center bg-green-700 text-white text-xs font-bold p-2 rounded-full w-6 h-6">
                         {convo.unreadCount}
                       </span>
                     )}
@@ -130,7 +162,6 @@ export default function StudentChatsPage() {
           )}
         </div>
 
-        {/* Chat */}
         <div className="col-span-2">
           {selectedChat && selectedPersonal ? (
             <ChatBox
@@ -141,8 +172,8 @@ export default function StudentChatsPage() {
             />
           ) : (
             <div className="bg-white rounded-lg border border-gray-200 h-96 flex items-center justify-center">
-              <p className="text-gray-500">
-                Selecione uma conversa para começar
+              <p className="text-gray-500 text-center text-sm">
+                Selecione uma conversa
               </p>
             </div>
           )}

@@ -27,33 +27,28 @@ export default function PersonalDashboard() {
     <main className="bg-white w-full min-h-dvh">
       <Header />
 
-      {/* Navigation Cards */}
       <div className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-8 text-black text-center">
-          Bem-vindo, <br /> {session?.user?.name || "Personal"}!
-        </h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
           <div
             onClick={() => router.push("/dashboard/personal/chats")}
-            className="p-6 bg-green-700 rounded-lg  cursor-pointer hover:shadow-lg transition"
+            className="p-4 bg-green-700 rounded-lg  cursor-pointer hover:shadow-lg transition hover:bg-green-600 "
           >
-            <h2 className="text-xl font-bold text-white mb-2">
+            <h2 className="text-sm font-bold text-white mb-1">
               Minhas Conversas
             </h2>
-            <p className="text-gray-300">
+            <p className="text-white text-xs">
               Chat com seus alunos e acompanhe o relacionamento
             </p>
           </div>
 
           <div
             onClick={() => router.push("/dashboard/personal/solicitacoes")}
-            className="p-6 bg-[#0F172A] rounded-lg  cursor-pointer hover:shadow-lg transition"
+            className="p-4 bg-[#0F172A] rounded-lg  cursor-pointer hover:shadow-lg hover:bg-[#212637] transition"
           >
-            <h2 className="text-xl font-bold text-white mb-2">
+            <h2 className="text-sm font-bold text-white mb-1">
               Solicitações recebidas
             </h2>
-            <p className="text-gray-300">
+            <p className="text-white text-xs">
               Gerencie suas solicitações de alunos
             </p>
           </div>

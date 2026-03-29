@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import ChatBox from "@/components/ChatBox";
+import ChatBox from "@/app/_components/ChatBox";
 
 interface Conversation {
   id: string;
@@ -36,7 +36,6 @@ export default function PersonalChatsPage() {
     if (status === "authenticated" && session?.user?.id) {
       fetchConversations();
 
-      // Atualizar conversas a cada 5 segundos (polling)
       const interval = setInterval(() => {
         fetchConversations();
       }, 5000);
@@ -64,6 +63,30 @@ export default function PersonalChatsPage() {
     }
   };
 
+  const handleSelectConversation = async (
+    conversationId: string,
+    studentId: string,
+    studentName: string | null,
+  ) => {
+    setSelectedChat(conversationId);
+    setSelectedStudent({
+      id: studentId,
+      name: studentName,
+    });
+
+    // Marcar mensagens como lidas
+    try {
+      await fetch("/api/messages/mark-as-read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ otherUserId: studentId }),
+      });
+    } catch (error) {
+      console.error("Erro ao marcar como lido:", error);
+    }
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -87,7 +110,6 @@ export default function PersonalChatsPage() {
       </h1>
 
       <div className="grid grid-cols-3 gap-6">
-        {/* Lista de Conversas */}
         <div className="col-span-1 bg-white rounded-lg border border-gray-200 overflow-hidden max-h-96 overflow-y-auto">
           {conversations.length === 0 ? (
             <div className="p-4 text-center text-gray-500">
@@ -99,11 +121,11 @@ export default function PersonalChatsPage() {
                 <button
                   key={convo.id}
                   onClick={() => {
-                    setSelectedChat(convo.id);
-                    setSelectedStudent({
-                      id: convo.studentId,
-                      name: convo.studentName,
-                    });
+                    handleSelectConversation(
+                      convo.id,
+                      convo.studentId,
+                      convo.studentName,
+                    );
                   }}
                   className={`w-full text-left p-4 border-b last:border-b-0 hover:bg-gray-50 transition ${
                     selectedChat === convo.id ? "bg-blue-50" : ""
@@ -118,8 +140,8 @@ export default function PersonalChatsPage() {
                         {convo.lastMessage || "Nenhuma mensagem"}
                       </p>
                     </div>
-                    {convo.unreadCount > 0 && (
-                      <span className="ml-2 inline-block bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {convo.unreadCount > 0 && selectedChat !== convo.id && (
+                      <span className="ml-2 inline-block bg-green-700 text-white text-xs font-bold p-2 rounded-full">
                         {convo.unreadCount}
                       </span>
                     )}
@@ -130,7 +152,6 @@ export default function PersonalChatsPage() {
           )}
         </div>
 
-        {/* Chat */}
         <div className="col-span-2">
           {selectedChat && selectedStudent ? (
             <ChatBox
