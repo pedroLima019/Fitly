@@ -45,9 +45,11 @@ export default function ChatBox({
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const initialFetchDone = useRef(false);
 
   useEffect(() => {
-    const fetchMessages = async () => {
+    // ✅ OTIMIZADO: Fetch inicial apenas UMA VEZ (em vez de polling a cada 2s)
+    const fetchMessagesOnce = async () => {
       try {
         const response = await fetch(
           `/api/messages?otherUserId=${otherUserId}`,
@@ -62,11 +64,27 @@ export default function ChatBox({
       }
     };
 
-    fetchMessages();
-
-    const interval = setInterval(fetchMessages, 2000);
-    return () => clearInterval(interval);
+    if (!initialFetchDone.current) {
+      fetchMessagesOnce();
+      initialFetchDone.current = true;
+    }
   }, [otherUserId]);
+
+  // ✅ OTIMIZADO: Usar Socket.io para receber mensagens em tempo real
+  useEffect(() => {
+    if (!isConnected) return;
+
+    // Listener para novas mensagens
+    // @ts-ignore
+    window.socket?.on("message:receive", (message: Message) => {
+      setMessages((prev) => [...prev, message]);
+    });
+
+    return () => {
+      // @ts-ignore
+      window.socket?.off("message:receive");
+    };
+  }, [isConnected]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

@@ -21,7 +21,11 @@ export async function PATCH(
     }
 
     // Rate limiting: max 50 requests per minute per user
-    const rateLimitResult = rateLimitMiddleware(session.user.id, 50, 60 * 1000);
+    const rateLimitResult = await rateLimitMiddleware(
+      session.user.id,
+      50,
+      60 * 1000,
+    );
     if (rateLimitResult instanceof NextResponse) {
       logger.warn(
         { userId: session.user.id },

@@ -137,6 +137,9 @@ model ClientRequest {
   updatedAt DateTime @updatedAt
 
   @@unique([studentId, personalId])
+  @@index([studentId, status])               // Para listar requisições por student
+  @@index([personalId, status, deletedAt])   // Para listar requisições por personal
+  @@index([status])                          // Para filtrar por status
 }
 
 model PersonalStudent {
@@ -174,8 +177,11 @@ model Message {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
-  // Índices para performance
+  // Índices para performance - OTIMIZADOS
   @@index([personalId, studentId])
-  @@index([createdAt])
+  @@index([personalId, createdAt])         // Para listar chronologically
+  @@index([studentId, readAt])             // Para contar não lidas por student
+  @@index([senderId])                      // Para queries by sender
+  @@index([readAt])                        // Para encontrar mensagens não lidas
 }
 

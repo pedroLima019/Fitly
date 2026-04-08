@@ -33,138 +33,139 @@ export async function GET(req: NextRequest) {
 
     if (isUserPersonal) {
       // Personal: listar conversas com alunos (baseado em PersonalStudent)
-      console.log("Buscando conversas para personal:", session.user.id);
-      const connections = await prisma.personalStudent.findMany({
+      // ✅ OTIMIZADO: 1 query em vez de 3N queries
+      const connectionsWithDetails = await prisma.personalStudent.findMany({
+        where: { personalId: session.user.id },
+        include: {
+          student: {
+            select: { id: true, name: true, image: true },
+          },
+        },
+      });
+
+      // Buscar últimas mensagens com agregação (1 query)
+      const lastMessages = await prisma.message.findMany({
         where: {
           personalId: session.user.id,
+          studentId: { in: connectionsWithDetails.map((c) => c.studentId) },
         },
         select: {
           studentId: true,
+          content: true,
+          createdAt: true,
+          readAt: true,
+          senderId: true,
         },
+        orderBy: { createdAt: "desc" },
+        distinct: ["studentId"],
       });
-      console.log("Connections found:", connections.length);
 
-      const studentIds = connections.map((c) => c.studentId);
+      const lastMessageMap = new Map(lastMessages.map((m) => [m.studentId, m]));
 
-      if (studentIds.length > 0) {
-        // Buscar detalhes dos alunos e última mensagem
-        const results = await Promise.all(
-          studentIds.map(async (studentId) => {
-            const student = await prisma.user.findUnique({
-              where: { id: studentId },
-              select: { id: true, name: true, image: true },
-            });
+      // Contar mensagens não lidas (1 query com agregação)
+      const unreadCounts = await prisma.message.groupBy({
+        by: ["studentId"],
+        where: {
+          personalId: session.user.id,
+          readAt: null,
+          senderId: { in: connectionsWithDetails.map((c) => c.studentId) },
+        },
+        _count: { id: true },
+      });
 
-            const lastMessage = await prisma.message.findFirst({
-              where: {
-                personalId: session.user.id,
-                studentId: studentId,
-              },
-              orderBy: { createdAt: "desc" },
-              select: {
-                content: true,
-                createdAt: true,
-                readAt: true,
-                senderId: true,
-              },
-            });
+      const unreadMap = new Map(
+        unreadCounts.map((u) => [u.studentId, u._count.id]),
+      );
 
-            const unreadCount = await prisma.message.count({
-              where: {
-                personalId: session.user.id,
-                studentId: studentId,
-                readAt: null,
-                senderId: studentId, // Mensagens de alunos não lidas pelo personal
-              },
-            });
-
-            return {
-              id: studentId,
-              studentId: studentId,
-              studentName: student?.name,
-              studentImage: student?.image,
-              lastMessage: lastMessage?.content,
-              lastMessageTime: lastMessage?.createdAt,
-              unreadCount,
-            };
-          }),
-        );
-
-        conversations = results.sort(
+      conversations = connectionsWithDetails
+        .map((conn) => ({
+          id: conn.studentId,
+          studentId: conn.studentId,
+          studentName: conn.student.name,
+          studentImage: conn.student.image,
+          lastMessage: lastMessageMap.get(conn.studentId)?.content,
+          lastMessageTime: lastMessageMap.get(conn.studentId)?.createdAt,
+          unreadCount: unreadMap.get(conn.studentId) || 0,
+        }))
+        .sort(
           (a, b) =>
             new Date(b.lastMessageTime || 0).getTime() -
             new Date(a.lastMessageTime || 0).getTime(),
         );
-      }
     } else {
-      // Student: listar conversas com personals (baseado em PersonalStudent)
-      console.log("Buscando conversas para student:", session.user.id);
-      const connections = await prisma.personalStudent.findMany({
+      // Student: listar conversas com personals
+      // ✅ OTIMIZADO: 1 query em vez de 3N queries
+      const connectionsWithDetails = await prisma.personalStudent.findMany({
+        where: { studentId: session.user.id },
+        include: {
+          personal: {
+            select: { id: true, name: true, image: true },
+          },
+        },
+      });
+
+      // Buscar últimas mensagens com agregação (1 query)
+      const lastMessages = await prisma.message.findMany({
         where: {
           studentId: session.user.id,
+          personalId: { in: connectionsWithDetails.map((c) => c.personalId) },
         },
         select: {
           personalId: true,
+          content: true,
+          createdAt: true,
+          readAt: true,
+          senderId: true,
         },
+        orderBy: { createdAt: "desc" },
+        distinct: ["personalId"],
       });
-      console.log("Connections found:", connections.length);
 
-      const personalIds = connections.map((c) => c.personalId);
+      const lastMessageMap = new Map(
+        lastMessages.map((m) => [m.personalId, m]),
+      );
 
-      if (personalIds.length > 0) {
-        // Buscar detalhes dos personals e última mensagem
-        const results = await Promise.all(
-          personalIds.map(async (personalId) => {
-            const personal = await prisma.user.findUnique({
-              where: { id: personalId },
-              select: { id: true, name: true, image: true },
-            });
+      // Contar mensagens não lidas (1 query com agregação)
+      const unreadCounts = await prisma.message.groupBy({
+        by: ["personalId"],
+        where: {
+          studentId: session.user.id,
+          readAt: null,
+          senderId: { in: connectionsWithDetails.map((c) => c.personalId) },
+        },
+        _count: { id: true },
+      });
 
-            const lastMessage = await prisma.message.findFirst({
-              where: {
-                personalId: personalId,
-                studentId: session.user.id,
-              },
-              orderBy: { createdAt: "desc" },
-              select: {
-                content: true,
-                createdAt: true,
-                readAt: true,
-                senderId: true,
-              },
-            });
+      const unreadMap = new Map(
+        unreadCounts.map((u) => [u.personalId, u._count.id]),
+      );
 
-            const unreadCount = await prisma.message.count({
-              where: {
-                personalId: personalId,
-                studentId: session.user.id,
-                readAt: null,
-                senderId: personalId, // Mensagens de personals não lidas pelo student
-              },
-            });
-
-            return {
-              id: personalId,
-              personalId: personalId,
-              personalName: personal?.name,
-              personalImage: personal?.image,
-              lastMessage: lastMessage?.content,
-              lastMessageTime: lastMessage?.createdAt,
-              unreadCount,
-            };
-          }),
-        );
-
-        conversations = results.sort(
+      conversations = connectionsWithDetails
+        .map((conn) => ({
+          id: conn.personalId,
+          personalId: conn.personalId,
+          personalName: conn.personal.name,
+          personalImage: conn.personal.image,
+          lastMessage: lastMessageMap.get(conn.personalId)?.content,
+          lastMessageTime: lastMessageMap.get(conn.personalId)?.createdAt,
+          unreadCount: unreadMap.get(conn.personalId) || 0,
+        }))
+        .sort(
           (a, b) =>
             new Date(b.lastMessageTime || 0).getTime() -
             new Date(a.lastMessageTime || 0).getTime(),
         );
-      }
     }
 
-    console.log("Final conversations count:", conversations.length);
-    return NextResponse.json({ conversations });
+    return NextResponse.json(
+      { conversations },
+      {
+        headers: {
+          "Cache-Control": "private, max-age=30, must-revalidate",
+          "Content-Type": "application/json",
+        },
+      },
+    );
   } catch (error) {
     console.error("Erro ao buscar conversas:", error);
     const errorMessage = error instanceof Error ? error.message : String(error);

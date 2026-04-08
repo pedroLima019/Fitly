@@ -19,7 +19,11 @@ export async function POST(
     }
 
     // Rate limiting: max 20 cancellations per minute per user
-    const rateLimitResult = rateLimitMiddleware(session.user.id, 20, 60 * 1000);
+    const rateLimitResult = await rateLimitMiddleware(
+      session.user.id,
+      20,
+      60 * 1000,
+    );
     if (rateLimitResult instanceof NextResponse) {
       logger.warn(
         { userId: session.user.id },

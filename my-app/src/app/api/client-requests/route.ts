@@ -109,7 +109,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Rate limiting: max 10 requests per minute per user
-    const rateLimitResult = rateLimitMiddleware(session.user.id, 10, 60 * 1000);
+    const rateLimitResult = await rateLimitMiddleware(
+      session.user.id,
+      10,
+      60 * 1000,
+    );
     if (rateLimitResult instanceof NextResponse) {
       logger.warn(
         { userId: session.user.id },

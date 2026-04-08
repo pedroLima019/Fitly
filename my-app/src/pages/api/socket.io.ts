@@ -23,20 +23,30 @@ const SocketHandler = (req: NextApiRequest, res: ResponseWithSocket) => {
   }
 
   const httpServer = res.socket.server;
+
+  // Get allowed origins from environment
+  const allowedOrigins = (
+    process.env.ALLOWED_ORIGINS || "http://localhost:3000"
+  )
+    .split(",")
+    .map((origin) => origin.trim());
+
   const io = new SocketIOServer(httpServer as HTTPServer, {
     path: "/api/socket.io",
     addTrailingSlash: false,
     cors: {
-      origin: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
+      origin: allowedOrigins,
       methods: ["GET", "POST"],
+      credentials: true,
+      maxAge: 86400, // 24 hours
     },
   });
 
   // Armazenar o IO no server
   httpServer.io = io;
 
-  // Armazenar ID do usuário por socket
-  const userSockets = new Map<string, string>();
+  // ✅ OTIMIZADO: Usar Set para rastrear múltiplas conexões por usuário (evita memory leak)
+  const userSockets = new Map<string, Set<string>>();
   const socketUsers = new Map<string, string>();
 
   io.on("connection", (socket) => {
@@ -44,9 +54,15 @@ const SocketHandler = (req: NextApiRequest, res: ResponseWithSocket) => {
 
     // Usuário se identifica ao conectar
     socket.on("user:identify", (userId: string) => {
-      userSockets.set(userId, socket.id);
+      // ✅ Adicionar socket ao Set do usuário (suporta múltiplas conexões)
+      if (!userSockets.has(userId)) {
+        userSockets.set(userId, new Set());
+      }
+      userSockets.get(userId)!.add(socket.id);
       socketUsers.set(socket.id, userId);
-      console.log(`✅ Usuário ${userId} identificado como ${socket.id}`);
+      console.log(
+        `✅ Usuário ${userId} identificado como ${socket.id} (${userSockets.get(userId)?.size} conexões)`,
+      );
 
       // Notificar que user entrou online
       socket.emit("connection:success", { socketId: socket.id });
@@ -64,18 +80,28 @@ const SocketHandler = (req: NextApiRequest, res: ResponseWithSocket) => {
         console.log("📨 Nova mensagem:", data);
 
         // Identificar recipiente
+        const userId = socketUsers.get(socket.id);
         const recipientId =
           data.senderId === data.personalId ? data.studentId : data.personalId;
-        const recipientSocketId = userSockets.get(recipientId);
+        const recipientSockets = userSockets.get(recipientId);
 
-        // Enviar para o recipiente em tempo real
-        if (recipientSocketId) {
-          io.to(recipientSocketId).emit("message:receive", {
-            personalId: data.personalId,
-            studentId: data.studentId,
-            senderId: data.senderId,
-            content: data.content,
-            createdAt: new Date(),
+        // ✅ Enviar para TODAS as conexões do recipiente (não apenas uma)
+        if (recipientSockets && recipientSockets.size > 0) {
+          recipientSockets.forEach((socketId) => {
+            io.to(socketId).emit("message:receive", {
+              id: data.personalId + "-" + data.studentId,
+              personalId: data.personalId,
+              studentId: data.studentId,
+              senderId: data.senderId,
+              content: data.content,
+              createdAt: new Date(),
+              readAt: null,
+              sender: {
+                id: data.senderId,
+                name: null,
+                image: null,
+              },
+            });
           });
         }
 
@@ -84,19 +110,22 @@ const SocketHandler = (req: NextApiRequest, res: ResponseWithSocket) => {
       },
     );
 
-    // Marcar mensagem como lida
+    // Marcar mensagens como lidas
     socket.on(
       "message:read",
       (data: { personalId: string; studentId: string }) => {
         console.log("✅ Mensagens marcadas como lidas:", data);
 
-        const recipientId = socketUsers.get(socket.id);
+        const userId = socketUsers.get(socket.id);
         const otherUserId =
-          data.personalId === recipientId ? data.studentId : data.personalId;
-        const otherUserSocketId = userSockets.get(otherUserId);
+          data.personalId === userId ? data.studentId : data.personalId;
 
-        if (otherUserSocketId) {
-          io.to(otherUserSocketId).emit("message:marked-read", data);
+        // ✅ Notificar TODAS as conexões do outro usuário
+        const otherUserSockets = userSockets.get(otherUserId);
+        if (otherUserSockets && otherUserSockets.size > 0) {
+          otherUserSockets.forEach((socketId) => {
+            io.to(socketId).emit("message:marked-read", data);
+          });
         }
       },
     );
@@ -105,15 +134,18 @@ const SocketHandler = (req: NextApiRequest, res: ResponseWithSocket) => {
     socket.on(
       "message:typing",
       (data: { personalId: string; studentId: string; isTyping: boolean }) => {
-        const recipientId = socketUsers.get(socket.id);
+        const userId = socketUsers.get(socket.id);
         const otherUserId =
-          data.personalId === recipientId ? data.studentId : data.personalId;
-        const otherUserSocketId = userSockets.get(otherUserId);
+          data.personalId === userId ? data.studentId : data.personalId;
 
-        if (otherUserSocketId) {
-          io.to(otherUserSocketId).emit("message:typing", {
-            isTyping: data.isTyping,
-            userId: recipientId,
+        // ✅ Notificar TODAS as conexões do outro usuário
+        const otherUserSockets = userSockets.get(otherUserId);
+        if (otherUserSockets && otherUserSockets.size > 0) {
+          otherUserSockets.forEach((socketId) => {
+            io.to(socketId).emit("message:typing", {
+              isTyping: data.isTyping,
+              userId: userId,
+            });
           });
         }
       },
@@ -123,10 +155,22 @@ const SocketHandler = (req: NextApiRequest, res: ResponseWithSocket) => {
     socket.on("disconnect", () => {
       const userId = socketUsers.get(socket.id);
       if (userId) {
-        userSockets.delete(userId);
-        socketUsers.delete(socket.id);
-        console.log(`❌ Usuário ${userId} desconectado`);
+        // ✅ OTIMIZADO: Remover socket do Set
+        const sockets = userSockets.get(userId);
+        if (sockets) {
+          sockets.delete(socket.id);
+          console.log(
+            `👋 Socket desconectado: ${socket.id}, usuário ainda ativo: ${sockets.size > 0}`,
+          );
+
+          // Remover usuário do Map quando não houver mais conexões
+          if (sockets.size === 0) {
+            userSockets.delete(userId);
+            console.log(`🔴 Usuário ${userId} completamente desconectado`);
+          }
+        }
       }
+      socketUsers.delete(socket.id);
     });
 
     // Erro
@@ -135,9 +179,6 @@ const SocketHandler = (req: NextApiRequest, res: ResponseWithSocket) => {
     });
   });
 
-  if (httpServer) {
-    httpServer.io = io;
-  }
   res.status(200).json({ success: true });
 };
 
