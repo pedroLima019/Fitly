@@ -145,7 +145,9 @@ export default function SolicitacoesPessoal() {
       <Header />
 
       <section className="max-w-4xl mx-auto p-4 md:p-6">
-        <h1 className="text-2xl font-semibold mb-6">Solicitações de alunos</h1>
+        <h1 className="text-xl font-semibold  text-center mb-6">
+          Solicitações de alunos
+        </h1>
 
         {message && (
           <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md text-sm">
@@ -158,7 +160,7 @@ export default function SolicitacoesPessoal() {
             Carregando solicitações...
           </p>
         ) : requests.length === 0 ? (
-          <p className="text-center text-zinc-600 py-12">
+          <p className="text-center text-zinc-600 py-12 text-sm">
             Nenhuma solicitação pendente.
           </p>
         ) : (
@@ -187,7 +189,6 @@ export default function SolicitacoesPessoal() {
                       )}
                     </div>
 
-                    {/* Info */}
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-sm">
                         {request.student.name}

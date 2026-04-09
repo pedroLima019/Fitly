@@ -23,6 +23,7 @@ interface Message {
 interface ChatBoxProps {
   otherUserId: string;
   otherUserName: string;
+  otherUserImage: string | null;
   personalId: string;
   studentId: string;
 }
@@ -30,6 +31,7 @@ interface ChatBoxProps {
 export default function ChatBox({
   otherUserId,
   otherUserName,
+  otherUserImage,
   personalId,
   studentId,
 }: ChatBoxProps) {
@@ -151,13 +153,31 @@ export default function ChatBox({
   }
 
   return (
-    <div className="flex flex-col h-130 bg-white rounded-lg border">
-      <div className="p-4 border-b flex items-center justify-between">
-        <div>
-          <h3 className="font-semibold text-gray-900">{otherUserName}</h3>
+    <div className="flex flex-col h-96 sm:h-screen lg:h-auto lg:min-h-96 bg-white rounded-lg border">
+      <div className="p-3 sm:p-4 border-b flex items-center justify-between flex-shrink-0 bg-gray-50">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {otherUserImage ? (
+            <Image
+              src={otherUserImage}
+              alt={otherUserName}
+              width={44}
+              height={44}
+              className="rounded-full w-11 h-11 sm:w-12 sm:h-12"
+            />
+          ) : (
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-blue-900 flex items-center justify-center text-white text-base sm:text-lg font-bold">
+              {otherUserName?.charAt(0).toUpperCase() || "?"}
+            </div>
+          )}
+          <div className="min-w-0">
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base lg:text-lg truncate">
+              {otherUserName}
+            </h3>
+            <p className="text-xs text-gray-500">Online</p>
+          </div>
         </div>
       </div>
-      <div className="flex flex-col overflow-y-auto p-3 space-y-5">
+      <div className="flex flex-col overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-5 flex-1">
         {messages.length === 0 ? (
           <p className="text-center text-gray-500 text-sm">
             Nenhuma mensagem ainda
@@ -173,14 +193,14 @@ export default function ChatBox({
               }`}
             >
               {msg.senderId !== session?.user?.id && (
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center flex-shrink-0">
                   {msg.sender.image ? (
                     <Image
                       src={msg.sender.image}
                       alt={msg.sender.name || "User"}
                       width={32}
                       height={32}
-                      className="rounded-full"
+                      className="rounded-full w-8 h-8"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs font-bold">
@@ -190,32 +210,34 @@ export default function ChatBox({
                 </div>
               )}
               <div
-                className={`max-w-xs ${
+                className={`max-w-xs sm:max-w-sm ${
                   msg.senderId === session?.user?.id ? "flex-row-reverse" : ""
                 }`}
               >
                 <p
-                  className={`text-sm font-semibold mb-1 ${
+                  className={`text-xs sm:text-sm font-semibold mb-1 ${
                     msg.senderId === session?.user?.id
-                      ? "text-right "
-                      : "text-left "
+                      ? "text-right"
+                      : "text-left"
                   }`}
                 >
                   {msg.sender.name || "Anônimo"}
                 </p>
                 <div
-                  className={`px-4 py-2 rounded-lg  ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg ${
                     msg.senderId === session?.user?.id
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-200 "
+                      ? "bg-blue-900 text-white"
+                      : "bg-gray-200"
                   }`}
                 >
-                  <p className="text-xs whitespace-pre-wrap">{msg.content}</p>
+                  <p className="text-xs sm:text-sm whitespace-pre-wrap">
+                    {msg.content}
+                  </p>
                   <div className="flex items-center justify-between mt-1 gap-2">
                     <p
-                      className={`text-[10px] ${
+                      className={`text-xs ${
                         msg.senderId === session?.user?.id
-                          ? "text-green-100"
+                          ? "text-blue-100"
                           : "text-gray-500"
                       }`}
                     >
@@ -226,8 +248,8 @@ export default function ChatBox({
                     </p>
                     {msg.senderId === session?.user?.id && (
                       <span
-                        className={`text-[10px] font-bold ${
-                          msg.readAt ? "text-blue-500" : "text-gray-500"
+                        className={`text-xs font-bold ${
+                          msg.readAt ? "text-blue-300" : "text-gray-400"
                         }`}
                       >
                         {msg.readAt ? "✓✓" : "✓"}
@@ -241,7 +263,7 @@ export default function ChatBox({
         )}
 
         {isTyping && (
-          <div className="flex items-center gap-1.5  p-3">
+          <div className="flex items-center gap-1.5 p-2 sm:p-3">
             <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
             <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-100"></div>
             <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-200"></div>
@@ -249,18 +271,21 @@ export default function ChatBox({
         )}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSendMessage} className="p-4 border-t flex gap-2">
+      <form
+        onSubmit={handleSendMessage}
+        className="p-3 sm:p-4 border-t flex gap-2 flex-shrink-0"
+      >
         <input
           type="text"
           value={newMessage}
           onChange={(e) => handleTyping(e.target.value)}
           placeholder="Digite uma mensagem..."
-          className="flex-1 px-3 py-2 border rounded-lg text-sm"
+          className="flex-1 px-3 py-2 border rounded-lg text-xs sm:text-sm"
         />
         <button
           type="submit"
           disabled={!newMessage.trim()}
-          className="p-2  bg-green-700 text-white rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 sm:px-4 bg-blue-900 text-white rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-800 transition"
         >
           Enviar
         </button>
