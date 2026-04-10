@@ -184,7 +184,7 @@ export default function StudentDashboard() {
       <Header />
 
       <section className="max-w-6xl mx-auto p-2 md:p-6">
-        <div className="grid grid-cols-1 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div
             onClick={() => router.push("/dashboard/aluno/chats")}
             className="p-4 bg-green-700 from-blue-50 to-blue-100 rounded-lg border border-blue-200 cursor-pointer hover:shadow-lg transition"
@@ -194,6 +194,18 @@ export default function StudentDashboard() {
             </h2>
             <p className="text-white text-xs">
               Chat com seus personals trainers
+            </p>
+          </div>
+
+          <div
+            onClick={() => router.push("/dashboard/aluno/minhas-solicitacoes")}
+            className="p-4 bg-emerald-700 rounded-lg border border-emerald-300 cursor-pointer hover:shadow-lg transition"
+          >
+            <h2 className="text-sm font-bold text-white mb-1">
+              Minhas Solicitações
+            </h2>
+            <p className="text-white text-xs">
+              Acompanhe o status de suas solicitações
             </p>
           </div>
         </div>

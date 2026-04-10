@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { IoMdSettings } from "react-icons/io";
 import RequestNotificationBell from "./RequestNotificationBell";
+import StudentNotificationBell from "./StudentNotificationBell";
 import {
   Sheet,
   SheetContent,
@@ -51,6 +52,7 @@ export default function Header() {
 
       <div className="flex items-center space-x-2">
         <RequestNotificationBell />
+        <StudentNotificationBell />
         <Sheet>
           <SheetTrigger asChild>
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
