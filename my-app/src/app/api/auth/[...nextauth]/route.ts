@@ -14,6 +14,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   pages: {
@@ -21,7 +22,22 @@ export const authOptions: NextAuthOptions = {
     signOut: "/",
   },
   callbacks: {
-    async signIn() {
+    async signIn({ user, account }) {
+      if (!account) return true;
+
+      // Verify user exists
+      const existingUser = await prisma.user.findUnique({
+        where: { email: user.email! },
+      });
+
+      if (existingUser && !existingUser.name) {
+        // Update user with name if missing
+        await prisma.user.update({
+          where: { id: existingUser.id },
+          data: { name: user.name },
+        });
+      }
+
       return true;
     },
     async jwt({ token, user }) {
@@ -30,6 +46,15 @@ export const authOptions: NextAuthOptions = {
         token.name = user.name || null;
         token.userType = user.userType || null;
         logger.info({ userId: user.id }, "JWT token refreshed with user data");
+      } else if (token?.id) {
+        // Refresh userType from database if not in user object
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { userType: true },
+        });
+        if (dbUser?.userType) {
+          token.userType = dbUser.userType;
+        }
       }
       return token;
     },

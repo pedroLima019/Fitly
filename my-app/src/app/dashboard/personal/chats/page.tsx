@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import ChatBox from "@/app/_components/ChatBox";
-import Image from "next/image";
+import Header from "@/app/_components/Header";
+import { ConversationList } from "./_components/ConversationList";
+import ChatWindow from "./_components/ChatWindow";
 
 interface Conversation {
   id: string;
@@ -20,13 +21,9 @@ export default function PersonalChatsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedChat, setSelectedChat] = useState<string | null>(null);
-  const [selectedStudent, setSelectedStudent] = useState<{
-    id: string;
-    name: string | null;
-    image: string | null;
-  } | null>(null);
+  const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showChatMobile, setShowChatMobile] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -50,11 +47,8 @@ export default function PersonalChatsPage() {
         credentials: "include",
       });
       const data = await response.json();
-      console.log("Conversas recebidas:", data);
       if (response.ok) {
         setConversations(data.conversations || []);
-      } else {
-        console.error("Erro no response:", response.status, data);
       }
     } catch (error) {
       console.error("Erro ao buscar conversas:", error);
@@ -63,25 +57,16 @@ export default function PersonalChatsPage() {
     }
   };
 
-  const handleSelectConversation = async (
-    conversationId: string,
-    studentId: string,
-    studentName: string | null,
-    studentImage: string | null,
-  ) => {
-    setSelectedChat(conversationId);
-    setSelectedStudent({
-      id: studentId,
-      name: studentName,
-      image: studentImage,
-    });
+  const handleSelectConversation = async (conversation: Conversation) => {
+    setSelectedChat(conversation);
+    setShowChatMobile(true);
 
     try {
       await fetch("/api/messages/mark-as-read", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ otherUserId: studentId }),
+        body: JSON.stringify({ otherUserId: conversation.studentId }),
       });
     } catch (error) {
       console.error("Erro ao marcar como lido:", error);
@@ -90,7 +75,7 @@ export default function PersonalChatsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <p className="text-gray-600">Carregando...</p>
       </div>
     );
@@ -98,95 +83,62 @@ export default function PersonalChatsPage() {
 
   if (!session?.user?.id) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <p className="text-gray-600">Não autenticado</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-2 sm:p-4">
-      <h1 className="text-lg sm:text-2xl font-bold mb-4 text-center">
-        Minhas Conversas
-      </h1>
+    <main className="min-h-screen bg-gray-50">
+      <Header />
 
-      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-2 lg:gap-4">
-        <div className="col-span-1 bg-white rounded-lg border overflow-hidden max-h-96 overflow-y-auto">
-          {conversations.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">
-              <p className="text-sm">Nenhuma conversa iniciada</p>
-            </div>
-          ) : (
-            <div>
-              {conversations.map((convo) => (
-                <button
-                  key={convo.id}
-                  onClick={() => {
-                    handleSelectConversation(
-                      convo.id,
-                      convo.studentId,
-                      convo.studentName,
-                      convo.studentImage,
-                    );
-                  }}
-                  className={`w-full text-left p-3 sm:p-4 border-b last:border-b-0 hover:bg-gray-100 lg:hover:bg-gray-50 duration-300 transition ${
-                    selectedChat === convo.id ? "bg-blue-50" : ""
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex gap-2 sm:gap-3 justify-center items-center min-w-0">
-                      {convo.studentImage ? (
-                        <Image
-                          src={convo.studentImage}
-                          alt={convo.studentName || "Aluno"}
-                          width={40}
-                          height={40}
-                          className="rounded-full flex-shrink-0 w-10 h-10"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-blue-900 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                          {convo.studentName?.charAt(0).toUpperCase() || "A"}
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
-                          {convo.studentName || "Aluno"}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-gray-600 truncate">
-                          {convo.lastMessage || "Nenhuma mensagem"}
-                        </p>
-                      </div>
-                    </div>
-                    {convo.unreadCount > 0 && selectedChat !== convo.id && (
-                      <span className="flex items-center justify-center bg-blue-900 text-white text-xs font-bold p-1 sm:p-2 rounded-full w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0">
-                        {convo.unreadCount}
-                      </span>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+      <div className="w-full h-[calc(100vh-60px)] flex flex-col lg:flex-row">
+        {/* Sidebar - Conversation List */}
+        <div
+          className={`
+          w-full lg:w-80 bg-white border-r
+          ${showChatMobile ? "hidden lg:flex lg:flex-col" : "flex flex-col"}
+        `}
+        >
+          <ConversationList
+            conversations={conversations}
+            selectedChat={selectedChat?.id || null}
+            onSelectConversation={handleSelectConversation}
+            isLoading={loading}
+          />
         </div>
 
-        <div className="col-span-1 lg:col-span-2">
-          {selectedChat && selectedStudent ? (
-            <ChatBox
-              otherUserId={selectedStudent.id}
-              otherUserName={selectedStudent.name || "Aluno"}
-              otherUserImage={selectedStudent.image}
+        {/* Main Chat Area */}
+        <div
+          className={`
+          flex-1 bg-white
+          ${showChatMobile ? "flex flex-col" : "hidden lg:flex lg:flex-col"}
+        `}
+        >
+          {selectedChat ? (
+            <ChatWindow
+              otherUserId={selectedChat.studentId}
+              otherUserName={selectedChat.studentName || "Aluno"}
+              otherUserImage={selectedChat.studentImage}
               personalId={session.user.id}
-              studentId={selectedStudent.id}
+              studentId={selectedChat.studentId}
+              onBackClick={() => setShowChatMobile(false)}
             />
           ) : (
-            <div className="bg-white rounded-lg border border-gray-200 h-96 sm:h-screen lg:h-auto lg:min-h-96 flex items-center justify-center p-4">
-              <p className="text-gray-500 text-center text-sm">
-                Selecione uma conversa
-              </p>
+            <div className="flex-1 flex items-center justify-center p-4">
+              <div className="text-center">
+                <p className="text-gray-500 text-lg mb-2">
+                  Selecione uma conversa
+                </p>
+                <p className="text-gray-400 text-sm">
+                  Clique em uma conversa para começar
+                </p>
+              </div>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

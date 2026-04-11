@@ -21,32 +21,42 @@ export async function GET(req: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
+      logger.warn({}, "Unauthorized access attempt to client-requests");
       return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
-    const status = (searchParams.get("status") ??
-      RequestStatus.pending) as RequestStatus;
+    const statusParam = searchParams.get("status");
     const type = searchParams.get("type") ?? "received";
 
-    if (!allowedStatuses.has(status)) {
-      logger.warn(
-        { userId: session.user.id, status },
-        "Invalid status requested",
-      );
-      return NextResponse.json({ error: "Status invalido" }, { status: 400 });
-    }
+    logger.info(
+      { userId: session.user.id, type, statusParam },
+      "Fetching client requests",
+    );
 
     if (!allowedTypes.has(type)) {
       logger.warn({ userId: session.user.id, type }, "Invalid type requested");
       return NextResponse.json({ error: "Tipo invalido" }, { status: 400 });
     }
 
+    // Build status filter - if no status provided, fetch all
+    const statusFilter: any = {};
+    if (statusParam && allowedStatuses.has(statusParam as RequestStatus)) {
+      statusFilter.status = statusParam as RequestStatus;
+    } else if (statusParam && statusParam !== "all") {
+      logger.warn(
+        { userId: session.user.id, statusParam },
+        "Invalid status requested",
+      );
+      return NextResponse.json({ error: "Status invalido" }, { status: 400 });
+    }
+    // If statusParam is "all" or not provided, don't filter by status
+
     if (type === "received") {
       const requests = await prisma.clientRequest.findMany({
         where: {
           personalId: session.user.id,
-          status,
+          ...statusFilter,
           deletedAt: null, // Exclude soft-deleted records
         },
         include: {
@@ -64,13 +74,19 @@ export async function GET(req: NextRequest) {
         take: 50, // Pagination
       });
 
+      logger.info(
+        { userId: session.user.id, count: requests.length, type },
+        "Retrieved received requests",
+      );
+
       return NextResponse.json({ requests });
     }
 
+    // For type === "sent"
     const requests = await prisma.clientRequest.findMany({
       where: {
         studentId: session.user.id,
-        status,
+        ...statusFilter,
         deletedAt: null, // Exclude soft-deleted records
       },
       include: {
@@ -87,6 +103,11 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
       take: 50, // Pagination
     });
+
+    logger.info(
+      { userId: session.user.id, count: requests.length, type },
+      "Retrieved sent requests",
+    );
 
     return NextResponse.json({ requests });
   } catch (error) {

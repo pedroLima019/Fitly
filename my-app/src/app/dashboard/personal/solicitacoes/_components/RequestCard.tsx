@@ -143,7 +143,7 @@ export function RequestCard({
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Motivo da rejeição (opcional)"
                 maxLength={500}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0052CC] resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm  resize-none"
                 rows={4}
               />
 

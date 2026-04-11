@@ -43,7 +43,9 @@ export default function Header() {
           </div>
         )}
         <div className="flex flex-col justify-center">
-          <span className="font-semibold text-sm">{session?.user?.name}</span>
+          <span className="font-semibold text-xs md:text-sm">
+            {session?.user?.name}
+          </span>
           <Link href={profilePath} className="text-xs  cursor-pointer">
             Editar Perfil
           </Link>

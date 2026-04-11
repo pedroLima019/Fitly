@@ -47,11 +47,9 @@ export default function Onboarding() {
         );
       }
 
-      if (userType === "personal") {
-        window.location.href = "/dashboard/personal";
-      } else {
-        window.location.href = "/dashboard/aluno";
-      }
+      // Force a session refresh by reloading
+      window.location.href =
+        userType === "personal" ? "/dashboard/personal" : "/dashboard/aluno";
     } catch (error) {
       console.error("Erro ao selecionar tipo de usuário:", error);
       setLoading(false);

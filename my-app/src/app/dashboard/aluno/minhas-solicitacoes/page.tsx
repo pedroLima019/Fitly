@@ -66,14 +66,21 @@ export default function MinhasSolicitacoes() {
 
     const loadRequests = async () => {
       try {
-        const response = await fetch("/api/client-requests?type=sent", {
-          method: "GET",
-          credentials: "include",
-        });
+        // Load all requests without status filter
+        const response = await fetch(
+          "/api/client-requests?type=sent&status=all",
+          {
+            method: "GET",
+            credentials: "include",
+          },
+        );
 
+        console.log("Response status:", response.status);
         const data = await response.json();
+        console.log("Response data:", data);
 
         if (!response.ok) {
+          console.error("API error:", data.error);
           setMessage({
             text: data.error || "Erro ao carregar solicitações",
             type: "error",
@@ -81,6 +88,7 @@ export default function MinhasSolicitacoes() {
           return;
         }
 
+        console.log("Requests loaded:", data.requests);
         setRequests(data.requests || []);
       } catch (error) {
         console.error("Erro ao carregar solicitações:", error);
