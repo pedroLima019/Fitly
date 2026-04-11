@@ -53,8 +53,11 @@ export default function Header() {
       </div>
 
       <div className="flex items-center space-x-2">
-        <RequestNotificationBell />
-        <StudentNotificationBell />
+        {session?.user?.userType === "personal" ? (
+          <RequestNotificationBell />
+        ) : (
+          <StudentNotificationBell />
+        )}
         <Sheet>
           <SheetTrigger asChild>
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
