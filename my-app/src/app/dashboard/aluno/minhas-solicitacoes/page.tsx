@@ -207,6 +207,7 @@ export default function MinhasSolicitacoes() {
         message: "",
       });
 
+      // Close detail modal
       handleCloseDetails();
     } catch (error) {
       console.error("Erro ao cancelar:", error);

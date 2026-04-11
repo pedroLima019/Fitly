@@ -49,7 +49,7 @@ export function MessageInput({
           }}
           placeholder={placeholder}
           rows={1}
-          className="flex-1 px-3 py-2 border rounded-2xl text-sm resize-none outline-none  max-h-24 overflow-y-auto"
+          className="flex-1 px-3 py-2 border rounded-2xl text-sm resize-none outline-none max-h-24 overflow-y-auto"
         />
         <button
           type="button"

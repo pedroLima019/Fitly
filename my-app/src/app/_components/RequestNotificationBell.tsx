@@ -7,43 +7,65 @@ import { useSession } from "next-auth/react";
 export default function RequestNotificationBell() {
   const { data: session } = useSession();
   const [pendingCount, setPendingCount] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!session?.user?.id || session.user.userType !== "personal") {
+    if (!session?.user?.id) {
       setLoading(false);
       return;
     }
 
-    const fetchPendingRequests = async () => {
+    const fetchNotifications = async () => {
       try {
-        const response = await fetch(
-          "/api/client-requests?type=received&status=pending",
-          {
-            method: "GET",
-            credentials: "include",
-          },
-        );
+        // Fetch pending requests for personal
+        if (session.user.userType === "personal") {
+          const requestResponse = await fetch(
+            "/api/client-requests?type=received&status=pending",
+            {
+              method: "GET",
+              credentials: "include",
+            },
+          );
 
-        if (response.ok) {
-          const data = await response.json();
-          setPendingCount(data.requests?.length || 0);
+          if (requestResponse.ok) {
+            const data = await requestResponse.json();
+            setPendingCount(data.requests?.length || 0);
+          }
+        }
+
+        // Fetch unread notifications for all users
+        const notificationResponse = await fetch("/api/notifications/unread", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (notificationResponse.ok) {
+          const data = await notificationResponse.json();
+          setUnreadNotifications(data.count || 0);
         }
       } catch (error) {
-        console.error("Erro ao carregar contador de solicitações:", error);
+        console.error("Erro ao carregar notificações:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPendingRequests();
+    fetchNotifications();
 
     // Recarrega a cada 30 segundos
-    const interval = setInterval(fetchPendingRequests, 30000);
+    const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [session]);
 
-  if (loading || session?.user?.userType !== "personal") {
+  if (loading) {
+    return null;
+  }
+
+  // Calculate total count
+  const totalCount = pendingCount + unreadNotifications;
+
+  if (session?.user?.userType !== "personal" && totalCount === 0) {
     return null;
   }
 

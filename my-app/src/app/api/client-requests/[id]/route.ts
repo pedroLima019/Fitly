@@ -86,18 +86,18 @@ export async function PATCH(
       );
     }
 
-    if (clientRequest.status !== RequestStatus.pending) {
-      logger.info(
-        { requestId: id, currentStatus: clientRequest.status },
-        "Cannot modify non-pending request",
-      );
-      return NextResponse.json(
-        { error: `Solicitação já foi ${clientRequest.status}` },
-        { status: 409 },
-      );
-    }
-
     if (action === "approve") {
+      // Approve only allowed for pending requests
+      if (clientRequest.status !== RequestStatus.pending) {
+        logger.info(
+          { requestId: id, currentStatus: clientRequest.status },
+          "Cannot approve non-pending request",
+        );
+        return NextResponse.json(
+          { error: `Solicitação já foi ${clientRequest.status}` },
+          { status: 409 },
+        );
+      }
       // Check if connection already exists
       const existingLink = await prisma.personalStudent.findUnique({
         where: {
@@ -139,6 +139,23 @@ export async function PATCH(
         }),
       ]);
 
+      // Create notification for the student
+      try {
+        await prisma.notification.create({
+          data: {
+            userId: clientRequest.studentId,
+            title: "Solicitação Aprovada",
+            message: `${clientRequest.personal?.name || "Um personal"} aprovou sua solicitação!`,
+            type: "request_approved",
+            relatedId: id,
+            isRead: false,
+          },
+        });
+      } catch (err) {
+        logger.warn({ error: err }, "Failed to send approval notification");
+        // Don't fail the operation if notification fails
+      }
+
       logger.info(
         {
           requestId: id,
@@ -170,6 +187,22 @@ export async function PATCH(
         ? `REJECTED: ${rejectionReason}`
         : "REJECTED";
 
+      // If rejecting an accepted request, delete the personal-student link
+      if (clientRequest.status === RequestStatus.accepted) {
+        await prisma.personalStudent
+          .delete({
+            where: {
+              studentId_personalId: {
+                studentId: clientRequest.studentId,
+                personalId: clientRequest.personalId,
+              },
+            },
+          })
+          .catch(() => {
+            // Link might not exist, that's okay
+          });
+      }
+
       await prisma.clientRequest.update({
         where: { id },
         data: {
@@ -178,6 +211,36 @@ export async function PATCH(
           updatedAt: new Date(),
         },
       });
+
+      // Create notification for the student
+      try {
+        const notificationType =
+          clientRequest.status === RequestStatus.accepted
+            ? "request_undone"
+            : "request_rejected";
+
+        const notificationTitle =
+          clientRequest.status === RequestStatus.accepted
+            ? "Aceitação Desfeita"
+            : "Solicitação Rejeitada";
+
+        await prisma.notification.create({
+          data: {
+            userId: clientRequest.studentId,
+            title: notificationTitle,
+            message:
+              clientRequest.status === RequestStatus.accepted
+                ? `${clientRequest.personal?.name || "Um personal"} desfez a aceitação da sua solicitação.`
+                : `Sua solicitação foi rejeitada.${rejectionReason ? ` Motivo: ${rejectionReason}` : ""}`,
+            type: notificationType,
+            relatedId: id,
+            isRead: false,
+          },
+        });
+      } catch (err) {
+        logger.warn({ error: err }, "Failed to send rejection notification");
+        // Don't fail the operation if notification fails
+      }
 
       logger.info(
         {

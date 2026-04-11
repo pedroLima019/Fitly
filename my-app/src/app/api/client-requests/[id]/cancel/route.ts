@@ -39,7 +39,12 @@ export async function POST(
 
     const clientRequest = await prisma.clientRequest.findUnique({
       where: { id },
-      select: { studentId: true, status: true, personalId: true },
+      select: {
+        studentId: true,
+        status: true,
+        personalId: true,
+        student: { select: { name: true } },
+      },
     });
 
     if (!clientRequest || clientRequest.status !== RequestStatus.pending) {
@@ -77,6 +82,24 @@ export async function POST(
         updatedAt: new Date(),
       },
     });
+
+    // Send notification to personal
+    try {
+      // Create notification for the bell icon
+      await prisma.notification.create({
+        data: {
+          userId: clientRequest.personalId,
+          title: "Solicitação Cancelada",
+          message: `${clientRequest.student?.name || "Um aluno"} cancelou a solicitação.`,
+          type: "request_canceled",
+          relatedId: id,
+          isRead: false,
+        },
+      });
+    } catch (err) {
+      logger.warn({ error: err }, "Failed to send cancellation notification");
+      // Don't fail the operation if notification fails
+    }
 
     logger.info(
       {

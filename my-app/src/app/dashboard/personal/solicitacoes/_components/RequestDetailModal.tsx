@@ -83,7 +83,7 @@ export function RequestDetailModal({
 
   const handleApprove = () => {
     onApprove(request.id);
-    onClose();
+    // Don't close modal here - let the parent component close it
   };
 
   return (
