@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { RequestStatus } from "@prisma/client";
 import { RequestCard } from "./_components/RequestCard";
+import { RequestDetailModal } from "./_components/RequestDetailModal";
+import { ConfirmationModal } from "./_components/ConfirmationModal";
 import { RequestFilters } from "./_components/RequestFilters";
 import { RequestStats } from "./_components/RequestStats";
 import { EmptyState } from "./_components/EmptyState";
@@ -44,6 +46,23 @@ export default function SolicitacoesPessoal() {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<ClientRequest | null>(
+    null,
+  );
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<{
+    isOpen: boolean;
+    type: "approved" | "rejected" | "canceled";
+    studentName: string;
+    studentImage: string | null;
+    message: string;
+  }>({
+    isOpen: false,
+    type: "approved",
+    studentName: "",
+    studentImage: null,
+    message: "",
+  });
 
   // Auto-dismiss message after 5 seconds
   useEffect(() => {
@@ -123,6 +142,7 @@ export default function SolicitacoesPessoal() {
   // Handle Approve
   const handleApprove = async (requestId: string) => {
     setProcessingId(requestId);
+    const currentRequest = requests.find((r) => r.id === requestId);
 
     try {
       const response = await fetch(`/api/client-requests/${requestId}`, {
@@ -150,10 +170,17 @@ export default function SolicitacoesPessoal() {
         ),
       );
 
-      setMessage({
-        text: "Solicitação aprovada com sucesso!",
-        type: "success",
+      // Show confirmation modal
+      setConfirmationData({
+        isOpen: true,
+        type: "approved",
+        studentName: currentRequest?.student.name || "",
+        studentImage: currentRequest?.student.image || null,
+        message: "",
       });
+
+      // Close detail modal
+      handleCloseDetails();
     } catch (error) {
       console.error("Erro ao aprovar:", error);
       setMessage({
@@ -165,9 +192,23 @@ export default function SolicitacoesPessoal() {
     }
   };
 
+  // Handle Open Details
+  const handleOpenDetails = (request: ClientRequest) => {
+    setSelectedRequest(request);
+    setIsDetailModalOpen(true);
+  };
+
+  // Handle Close Details
+  const handleCloseDetails = () => {
+    setIsDetailModalOpen(false);
+    setTimeout(() => setSelectedRequest(null), 300);
+  };
+
   // Handle Reject
   const handleReject = async (requestId: string, reason: string) => {
     setProcessingId(requestId);
+    const currentRequest = requests.find((r) => r.id === requestId);
+    const wasPreviouslyAccepted = currentRequest?.status === "accepted";
 
     try {
       const response = await fetch(`/api/client-requests/${requestId}`, {
@@ -198,10 +239,35 @@ export default function SolicitacoesPessoal() {
         ),
       );
 
-      setMessage({
-        text: "Solicitação rejeitada",
-        type: "info",
+      // Send notification to student
+      try {
+        await fetch("/api/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            recipientId: currentRequest?.student.id,
+            content: wasPreviouslyAccepted
+              ? `${currentRequest?.student.name}, o personal desfez a aceitação da sua solicitação.`
+              : `Sua solicitação foi rejeitada${reason ? `: ${reason}` : ""}`,
+            type: "system",
+          }),
+        });
+      } catch (err) {
+        console.error("Erro ao enviar notificação:", err);
+      }
+
+      // Show confirmation modal
+      setConfirmationData({
+        isOpen: true,
+        type: wasPreviouslyAccepted ? "canceled" : "rejected",
+        studentName: currentRequest?.student.name || "",
+        studentImage: currentRequest?.student.image || null,
+        message: reason,
       });
+
+      // Close detail modal
+      handleCloseDetails();
     } catch (error) {
       console.error("Erro ao rejeitar:", error);
       setMessage({
@@ -237,36 +303,6 @@ export default function SolicitacoesPessoal() {
           </p>
         </div>
 
-        {/* Messages */}
-        {message && (
-          <div
-            className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-              message.type === "success"
-                ? "bg-green-600"
-                : message.type === "error"
-                  ? "bg-red-600"
-                  : "bg-blue-600"
-            }`}
-          >
-            {message.type === "success" ? (
-              <CheckCircle className="w-5 h-5 text-[#00D97E] flex-shrink-0" />
-            ) : (
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-            )}
-            <p
-              className={`text-sm ${
-                message.type === "success"
-                  ? "text-green-600"
-                  : message.type === "error"
-                    ? "text-red-600"
-                    : "text-blue-600"
-              }`}
-            >
-              {message.text}
-            </p>
-          </div>
-        )}
-
         {/* Stats */}
         {!loading && <RequestStats {...stats} />}
 
@@ -301,11 +337,36 @@ export default function SolicitacoesPessoal() {
                 {...request}
                 onApprove={handleApprove}
                 onReject={handleReject}
+                onOpenDetails={() => handleOpenDetails(request)}
                 isProcessing={processingId === request.id}
               />
             ))}
           </div>
         )}
+
+        {/* Detail Modal */}
+        {selectedRequest && (
+          <RequestDetailModal
+            request={selectedRequest}
+            isOpen={isDetailModalOpen}
+            onClose={handleCloseDetails}
+            onApprove={handleApprove}
+            onReject={handleReject}
+            isProcessing={processingId === selectedRequest.id}
+          />
+        )}
+
+        {/* Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={confirmationData.isOpen}
+          onClose={() =>
+            setConfirmationData({ ...confirmationData, isOpen: false })
+          }
+          type={confirmationData.type}
+          studentName={confirmationData.studentName}
+          studentImage={confirmationData.studentImage}
+          message={confirmationData.message}
+        />
       </section>
     </main>
   );

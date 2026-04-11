@@ -16,6 +16,7 @@ interface StudentRequestCardProps {
   status: RequestStatus;
   createdAt: string;
   onCancel: (id: string) => void;
+  onOpenDetails: () => void;
   isProcessing: boolean;
 }
 
@@ -26,6 +27,7 @@ export function StudentRequestCard({
   status,
   createdAt,
   onCancel,
+  onOpenDetails,
   isProcessing,
 }: StudentRequestCardProps) {
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -62,7 +64,8 @@ export function StudentRequestCard({
   return (
     <>
       <div
-        className={`border-l-4 rounded-lg p-4 transition-all ${statusColor[status as keyof typeof statusColor]}`}
+        onClick={onOpenDetails}
+        className={`border-l-4 rounded-lg p-4 transition-all cursor-pointer hover:shadow-md ${statusColor[status as keyof typeof statusColor]}`}
       >
         <div className="flex items-start justify-between gap-4">
           {/* Personal Info */}
@@ -78,7 +81,7 @@ export function StudentRequestCard({
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-gray-900 truncate">
+                <h3 className="font-semibold text-gray-900 text-xs truncate">
                   {personal.name}
                 </h3>
                 <span
@@ -88,7 +91,7 @@ export function StudentRequestCard({
                 </span>
               </div>
 
-              <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+              <p className="text-xs text-gray-600 line-clamp-2 mb-2">
                 {message}
               </p>
 
@@ -114,7 +117,7 @@ export function StudentRequestCard({
 
       {/* Cancel Modal */}
       {showCancelModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full">
             <div className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">

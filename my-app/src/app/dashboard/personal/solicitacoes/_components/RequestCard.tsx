@@ -16,6 +16,7 @@ interface RequestCardProps {
   createdAt: string;
   onApprove: (id: string) => void;
   onReject: (id: string, reason: string) => void;
+  onOpenDetails: () => void;
   isProcessing: boolean;
 }
 
@@ -27,6 +28,7 @@ export function RequestCard({
   createdAt,
   onApprove,
   onReject,
+  onOpenDetails,
   isProcessing,
 }: RequestCardProps) {
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -67,7 +69,8 @@ export function RequestCard({
   return (
     <>
       <div
-        className={`border-l-4 rounded-lg p-4 transition-all ${statusColor[status as keyof typeof statusColor]}`}
+        onClick={onOpenDetails}
+        className={`border-l-4 rounded-lg p-4 transition-all cursor-pointer hover:shadow-md ${statusColor[status as keyof typeof statusColor]}`}
       >
         <div className="flex items-start justify-between gap-4">
           {/* Student Info */}
@@ -83,7 +86,7 @@ export function RequestCard({
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-gray-900 truncate">
+                <h3 className="font-semibold text-gray-900 text-xs truncate">
                   {student.name}
                 </h3>
                 <span
@@ -93,7 +96,7 @@ export function RequestCard({
                 </span>
               </div>
 
-              <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+              <p className="text-xs text-gray-600 line-clamp-2 mb-2">
                 {message}
               </p>
 

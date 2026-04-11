@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { RequestStatus } from "@prisma/client";
 import { StudentRequestCard } from "./_components/StudentRequestCard";
+import { StudentRequestDetailModal } from "./_components/StudentRequestDetailModal";
+import { StudentConfirmationModal } from "./_components/StudentConfirmationModal";
 import { StudentRequestFilters } from "./_components/StudentRequestFilters";
 import { StudentRequestStats } from "./_components/StudentRequestStats";
 import { EmptyState } from "./_components/EmptyState";
@@ -44,6 +46,23 @@ export default function MinhasSolicitacoes() {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<StudentRequest | null>(
+    null,
+  );
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<{
+    isOpen: boolean;
+    type: "approved" | "rejected" | "canceled";
+    personalName: string;
+    personalImage: string | null;
+    message: string;
+  }>({
+    isOpen: false,
+    type: "approved",
+    personalName: "",
+    personalImage: null,
+    message: "",
+  });
 
   // Auto-dismiss message after 5 seconds
   useEffect(() => {
@@ -128,9 +147,22 @@ export default function MinhasSolicitacoes() {
     };
   }, [requests]);
 
+  // Handle Open Details
+  const handleOpenDetails = (request: ClientRequest) => {
+    setSelectedRequest(request);
+    setIsDetailModalOpen(true);
+  };
+
+  // Handle Close Details
+  const handleCloseDetails = () => {
+    setIsDetailModalOpen(false);
+    setTimeout(() => setSelectedRequest(null), 300);
+  };
+
   // Handle Cancel Request
   const handleCancelRequest = async (requestId: string) => {
     setProcessingId(requestId);
+    const currentRequest = requests.find((r) => r.id === requestId);
 
     try {
       const response = await fetch(`/api/client-requests/${requestId}/cancel`, {
@@ -150,10 +182,32 @@ export default function MinhasSolicitacoes() {
 
       setRequests((prev) => prev.filter((request) => request.id !== requestId));
 
-      setMessage({
-        text: "Solicitação cancelada com sucesso!",
-        type: "success",
+      // Send notification to personal trainer
+      try {
+        await fetch("/api/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            recipientId: currentRequest?.personal.id,
+            content: `Um aluno cancelou a solicitação de ${currentRequest?.personal.name}.`,
+            type: "system",
+          }),
+        });
+      } catch (err) {
+        console.error("Erro ao enviar notificação:", err);
+      }
+
+      // Show confirmation modal
+      setConfirmationData({
+        isOpen: true,
+        type: "canceled",
+        personalName: currentRequest?.personal.name || "",
+        personalImage: currentRequest?.personal.image || null,
+        message: "",
       });
+
+      handleCloseDetails();
     } catch (error) {
       console.error("Erro ao cancelar:", error);
       setMessage({
@@ -189,45 +243,11 @@ export default function MinhasSolicitacoes() {
           </p>
         </div>
 
-        {/* Messages */}
-        {message && (
-          <div
-            className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-              message.type === "success"
-                ? "bg-emerald-50 border border-[#00D97E]"
-                : message.type === "error"
-                  ? "bg-red-50 border border-red-300"
-                  : "bg-blue-50 border border-[#0052CC]"
-            }`}
-          >
-            {message.type === "success" ? (
-              <CheckCircle
-                className={`flex-shrink-0 ${
-                  message.type === "success"
-                    ? "text-[#00D97E]"
-                    : message.type === "error"
-                      ? "text-red-700"
-                      : "text-[#0052CC]"
-                }`}
-                size={20}
-              />
-            ) : (
-              <AlertCircle
-                className={`flex-shrink-0 ${
-                  message.type === "error" ? "text-red-700" : "text-[#0052CC]"
-                }`}
-                size={20}
-              />
-            )}
-            <span
-              className={`text-sm font-medium ${
-                message.type === "success"
-                  ? "text-[#00A65D]"
-                  : message.type === "error"
-                    ? "text-red-700"
-                    : "text-[#0052CC]"
-              }`}
-            >
+        {/* Messages - Only show errors */}
+        {message && message.type === "error" && (
+          <div className="mb-6 p-4 rounded-lg flex items-center gap-3 bg-red-50 border border-red-300">
+            <AlertCircle className="flex-shrink-0 text-red-700" size={20} />
+            <span className="text-sm font-medium text-red-700">
               {message.text}
             </span>
           </div>
@@ -257,11 +277,35 @@ export default function MinhasSolicitacoes() {
                 {...request}
                 onCancel={handleCancelRequest}
                 isProcessing={processingId === request.id}
+                onOpenDetails={() => handleOpenDetails(request)}
               />
             ))}
           </div>
         )}
       </section>
+
+      {/* Request Detail Modal */}
+      {selectedRequest && (
+        <StudentRequestDetailModal
+          isOpen={isDetailModalOpen}
+          onClose={handleCloseDetails}
+          request={selectedRequest}
+          onCancel={handleCancelRequest}
+          isProcessing={processingId === selectedRequest.id}
+        />
+      )}
+
+      {/* Confirmation Modal */}
+      <StudentConfirmationModal
+        isOpen={confirmationData.isOpen}
+        onClose={() =>
+          setConfirmationData({ ...confirmationData, isOpen: false })
+        }
+        type={confirmationData.type}
+        personalName={confirmationData.personalName}
+        personalImage={confirmationData.personalImage}
+        message={confirmationData.message}
+      />
     </main>
   );
 }
