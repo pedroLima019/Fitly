@@ -4,11 +4,11 @@ import Header from "@/app/_components/Header";
 import PersonalCard, {
   type PersonalCardData,
 } from "./_components/PersonalCard";
-import PersonalSearchInput from "./_components/PersonalSearchInput";
 import SuccessModal from "./_components/SuccessModal";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import PersonalSearchInput from "./_components/PersonalSearchInput";
 
 export default function StudentDashboard() {
   const { data: session, status } = useSession();
@@ -188,14 +188,14 @@ export default function StudentDashboard() {
   }
 
   return (
-    <main className="bg-white min-h-dvh">
+    <main className="bg-white min-h-dvh pb-20 md:pb-0">
       <Header />
 
       <section className="max-w-6xl mx-auto p-2 md:p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-1 mb-4">
           <div
             onClick={() => router.push("/dashboard/aluno/chats")}
-            className="p-4 bg-green-700 from-blue-50 to-blue-100 rounded-lg cursor-pointer hover:shadow-lg transition"
+            className="p-4 bg-green-700 from-blue-50 to-blue-100 rounded-lg cursor-pointer transition"
           >
             <h2 className="text-sm font-bold text-white mb-1">
               Minhas Conversas
@@ -207,7 +207,7 @@ export default function StudentDashboard() {
 
           <div
             onClick={() => router.push("/dashboard/aluno/minhas-solicitacoes")}
-            className="p-4 bg-[#0F172A] rounded-lg  cursor-pointer hover:shadow-lg transition"
+            className="p-4 bg-[#0F172A] rounded-lg cursor-pointer transition"
           >
             <h2 className="text-sm font-bold text-white mb-1">
               Minhas Solicitações
@@ -218,7 +218,62 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        <PersonalSearchInput value={search} onChange={setSearch} />
+        {/* Desktop - Todos os personals com filtro */}
+        <div className="hidden md:block">
+          <h2 className="text-lg font-semibold mb-2 mt-2">Procure personais</h2>
+          <PersonalSearchInput value={search} onChange={setSearch} />
+
+          {loadingPersonals ? (
+            <p className="text-center text-zinc-600">
+              Encontrando personais...
+            </p>
+          ) : filteredPersonals.length === 0 ? (
+            <p className="text-center text-zinc-600 py-12 text-sm">
+              Nenhum personal encontrado para essa pesquisa.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredPersonals.map((personal) => (
+                <PersonalCard
+                  key={personal.id}
+                  personal={personal}
+                  requestingId={requestingId}
+                  onRequestPersonal={handleRequestPersonal}
+                  onCancelRequest={handleCancelRequest}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Mobile - Apenas personals confirmados */}
+        <div className="md:hidden">
+          <h2 className="text-lg font-semibold mb-4 mt-6">Meus personais</h2>
+
+          {loadingPersonals ? (
+            <p className="text-center text-zinc-600">Carregando...</p>
+          ) : personals.filter((p) => p.requestStatus === "accepted").length ===
+            0 ? (
+            <p className="text-center text-zinc-600 py-12 text-sm">
+              Você ainda não tem personals confirmados
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-6">
+              {personals
+                .filter((p) => p.requestStatus === "accepted")
+                .map((personal) => (
+                  <PersonalCard
+                    key={personal.id}
+                    personal={personal}
+                    requestingId={requestingId}
+                    onRequestPersonal={handleRequestPersonal}
+                    onCancelRequest={handleCancelRequest}
+                  />
+                ))}
+            </div>
+          )}
+        </div>
+
         <SuccessModal
           message={message}
           isOpen={showModal}
@@ -227,26 +282,6 @@ export default function StudentDashboard() {
             setMessage("");
           }}
         />
-
-        {loadingPersonals ? (
-          <p className="text-center text-zinc-600">Encontrando personais...</p>
-        ) : filteredPersonals.length === 0 ? (
-          <p className="text-center text-zinc-600 py-12 text-sm">
-            Nenhum personal encontrado para essa pesquisa.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPersonals.map((personal) => (
-              <PersonalCard
-                key={personal.id}
-                personal={personal}
-                requestingId={requestingId}
-                onRequestPersonal={handleRequestPersonal}
-                onCancelRequest={handleCancelRequest}
-              />
-            ))}
-          </div>
-        )}
       </section>
     </main>
   );

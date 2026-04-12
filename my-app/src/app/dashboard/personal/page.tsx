@@ -24,7 +24,7 @@ export default function PersonalDashboard() {
   }
 
   return (
-    <main className="bg-white w-full min-h-dvh">
+    <main className="bg-white w-full min-h-dvh pb-20 md:pb-0">
       <Header />
 
       <div className="max-w-6xl mx-auto p-2 md:p-6">

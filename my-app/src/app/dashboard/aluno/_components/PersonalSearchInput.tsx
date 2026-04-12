@@ -8,8 +8,7 @@ export default function PersonalSearchInput({
   onChange,
 }: PersonalSearchInputProps) {
   return (
-    <div className="mb-2">
-      <label className="text-xs font-medium">Pesquisar personal: </label>
+    <div className="mb-2 ">
       <input
         type="text"
         value={value}

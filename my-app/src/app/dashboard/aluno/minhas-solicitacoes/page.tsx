@@ -226,7 +226,7 @@ export default function MinhasSolicitacoes() {
   }
 
   return (
-    <main className="min-h-dvh bg-gray-50">
+    <main className="min-h-dvh bg-gray-50 pb-20 md:pb-0">
       <Header />
 
       <section className="max-w-5xl mx-auto px-4 py-8 md:px-6 md:py-10">
