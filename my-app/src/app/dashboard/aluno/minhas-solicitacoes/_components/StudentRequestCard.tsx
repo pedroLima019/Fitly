@@ -65,9 +65,9 @@ export function StudentRequestCard({
     <>
       <div
         onClick={onOpenDetails}
-        className={`border-l-4 rounded-lg p-4 transition-all cursor-pointer hover:shadow-md ${statusColor[status as keyof typeof statusColor]}`}
+        className={`border-l-4 rounded-lg p-3 md:p-4 transition-all cursor-pointer hover:shadow-md ${statusColor[status as keyof typeof statusColor]}`}
       >
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
           {/* Personal Info */}
           <div className="flex items-start gap-3 flex-1 min-w-0">
             <div className="relative w-12 h-12 flex-shrink-0">
@@ -80,8 +80,8 @@ export function StudentRequestCard({
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-gray-900 text-xs truncate">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h3 className="font-semibold text-gray-900 text-xs md:text-sm truncate">
                   {personal.name}
                 </h3>
                 <span
@@ -91,7 +91,7 @@ export function StudentRequestCard({
                 </span>
               </div>
 
-              <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 mb-2">
                 {message}
               </p>
 
@@ -101,11 +101,11 @@ export function StudentRequestCard({
 
           {/* Action Buttons - Only for pending */}
           {status === "pending" && (
-            <div className="flex-shrink-0">
+            <div className="w-full md:w-auto md:flex-shrink-0">
               <button
                 onClick={() => setShowCancelModal(true)}
                 disabled={isProcessing}
-                className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+                className="w-full md:w-auto px-3 md:px-3 py-1.5 bg-red-600 text-white text-xs md:text-xs font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center md:justify-start gap-2"
               >
                 <Trash2 size={16} />
                 {isProcessing ? "..." : "Cancelar"}
@@ -120,7 +120,7 @@ export function StudentRequestCard({
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full">
             <div className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg text-xs font-semibold text-gray-900 mb-4">
                 Cancelar solicitação
               </h2>
 
@@ -133,7 +133,7 @@ export function StudentRequestCard({
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowCancelModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
                 >
                   Não, manter
                 </button>
@@ -141,7 +141,7 @@ export function StudentRequestCard({
                 <button
                   onClick={handleCancelConfirm}
                   disabled={isProcessing}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="flex-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   {isProcessing ? "..." : "Sim, cancelar"}
                 </button>

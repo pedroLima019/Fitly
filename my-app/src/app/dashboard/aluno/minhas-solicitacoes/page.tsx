@@ -12,7 +12,7 @@ import { StudentRequestFilters } from "./_components/StudentRequestFilters";
 import { StudentRequestStats } from "./_components/StudentRequestStats";
 import { EmptyState } from "./_components/EmptyState";
 import { LoadingState } from "./_components/LoadingState";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { ErrorModal } from "./_components/ErrorModal";
 
 type StudentRequest = {
   id: string;
@@ -41,6 +41,8 @@ export default function MinhasSolicitacoes() {
   const [requests, setRequests] = useState<StudentRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<Message | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<"all" | RequestStatus>(
     "all",
   );
@@ -66,11 +68,17 @@ export default function MinhasSolicitacoes() {
 
   // Auto-dismiss message after 5 seconds
   useEffect(() => {
-    if (message) {
+    if (message && message.type !== "error") {
       const timer = setTimeout(() => setMessage(null), 5000);
       return () => clearTimeout(timer);
     }
   }, [message]);
+
+  // Handle error messages - show in modal
+  const handleError = (errorText: string) => {
+    setErrorMessage(errorText);
+    setIsErrorModalOpen(true);
+  };
 
   // Authentication Check
   useEffect(() => {
@@ -100,10 +108,7 @@ export default function MinhasSolicitacoes() {
 
         if (!response.ok) {
           console.error("API error:", data.error);
-          setMessage({
-            text: data.error || "Erro ao carregar solicitações",
-            type: "error",
-          });
+          handleError(data.error || "Erro ao carregar solicitações");
           return;
         }
 
@@ -111,10 +116,7 @@ export default function MinhasSolicitacoes() {
         setRequests(data.requests || []);
       } catch (error) {
         console.error("Erro ao carregar solicitações:", error);
-        setMessage({
-          text: "Erro ao carregar solicitações",
-          type: "error",
-        });
+        handleError("Erro ao carregar solicitações");
       } finally {
         setLoading(false);
       }
@@ -148,7 +150,7 @@ export default function MinhasSolicitacoes() {
   }, [requests]);
 
   // Handle Open Details
-  const handleOpenDetails = (request: ClientRequest) => {
+  const handleOpenDetails = (request: StudentRequest) => {
     setSelectedRequest(request);
     setIsDetailModalOpen(true);
   };
@@ -173,10 +175,7 @@ export default function MinhasSolicitacoes() {
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage({
-          text: data.error || "Erro ao cancelar solicitação",
-          type: "error",
-        });
+        handleError(data.error || "Erro ao cancelar solicitação");
         return;
       }
 
@@ -211,10 +210,7 @@ export default function MinhasSolicitacoes() {
       handleCloseDetails();
     } catch (error) {
       console.error("Erro ao cancelar:", error);
-      setMessage({
-        text: "Erro ao cancelar solicitação",
-        type: "error",
-      });
+      handleError("Erro ao cancelar solicitação");
     } finally {
       setProcessingId(null);
     }
@@ -243,16 +239,6 @@ export default function MinhasSolicitacoes() {
             Acompanhe o status das suas solicitações para personals
           </p>
         </div>
-
-        {/* Messages - Only show errors */}
-        {message && message.type === "error" && (
-          <div className="mb-6 p-4 rounded-lg flex items-center gap-3 bg-red-50 border border-red-300">
-            <AlertCircle className="flex-shrink-0 text-red-700" size={20} />
-            <span className="text-sm font-medium text-red-700">
-              {message.text}
-            </span>
-          </div>
-        )}
 
         {/* Stats */}
         <StudentRequestStats {...stats} />
@@ -306,6 +292,13 @@ export default function MinhasSolicitacoes() {
         personalName={confirmationData.personalName}
         personalImage={confirmationData.personalImage}
         message={confirmationData.message}
+      />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={isErrorModalOpen}
+        onClose={() => setIsErrorModalOpen(false)}
+        message={errorMessage || ""}
       />
     </main>
   );

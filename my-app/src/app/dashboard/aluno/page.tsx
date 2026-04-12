@@ -5,6 +5,7 @@ import PersonalCard, {
   type PersonalCardData,
 } from "./_components/PersonalCard";
 import PersonalSearchInput from "./_components/PersonalSearchInput";
+import SuccessModal from "./_components/SuccessModal";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ export default function StudentDashboard() {
   const [personals, setPersonals] = useState<PersonalCardData[]>([]);
   const [loadingPersonals, setLoadingPersonals] = useState(true);
   const [message, setMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const [requestingId, setRequestingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
@@ -23,6 +25,12 @@ export default function StudentDashboard() {
       router.push("/");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    if (message && message.includes("sucesso")) {
+      setShowModal(true);
+    }
+  }, [message]);
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -211,11 +219,14 @@ export default function StudentDashboard() {
         </div>
 
         <PersonalSearchInput value={search} onChange={setSearch} />
-        {message ? (
-          <div className="mb-4 p-3 bg-blue-100 text-green-600 rounded-md text-sm">
-            {message}
-          </div>
-        ) : null}
+        <SuccessModal
+          message={message}
+          isOpen={showModal}
+          onClose={() => {
+            setShowModal(false);
+            setMessage("");
+          }}
+        />
 
         {loadingPersonals ? (
           <p className="text-center text-zinc-600">Encontrando personais...</p>

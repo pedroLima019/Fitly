@@ -70,9 +70,9 @@ export function RequestCard({
     <>
       <div
         onClick={onOpenDetails}
-        className={`border-l-4 rounded-lg p-4 transition-all cursor-pointer hover:shadow-md ${statusColor[status as keyof typeof statusColor]}`}
+        className={`border-l-4 rounded-lg p-3 md:p-4 transition-all cursor-pointer hover:shadow-md ${statusColor[status as keyof typeof statusColor]}`}
       >
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
           {/* Student Info */}
           <div className="flex items-start gap-3 flex-1 min-w-0">
             <div className="relative w-12 h-12 flex-shrink-0">
@@ -85,8 +85,8 @@ export function RequestCard({
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-gray-900 text-xs truncate">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h3 className="font-semibold text-gray-900 text-xs md:text-sm truncate">
                   {student.name}
                 </h3>
                 <span
@@ -96,7 +96,7 @@ export function RequestCard({
                 </span>
               </div>
 
-              <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 mb-2">
                 {message}
               </p>
 
@@ -106,11 +106,11 @@ export function RequestCard({
 
           {/* Action Buttons - Only for pending */}
           {status === "pending" && (
-            <div className="flex gap-2 flex-shrink-0">
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto md:flex-shrink-0">
               <button
                 onClick={() => onApprove(id)}
                 disabled={isProcessing}
-                className="px-4 py-2 bg-[#00D97E] text-white text-sm font-medium rounded-lg hover:bg-[#00A65D] disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="flex-1 sm:flex-none px-3 md:px-3 py-1.5 bg-[#00D97E] text-white text-xs font-medium rounded-lg hover:bg-[#00A65D] disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
               >
                 {isProcessing ? "..." : "Aceitar"}
               </button>
@@ -118,7 +118,7 @@ export function RequestCard({
               <button
                 onClick={() => setShowRejectModal(true)}
                 disabled={isProcessing}
-                className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="flex-1 sm:flex-none px-3 md:px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
               >
                 {isProcessing ? "..." : "Rejeitar"}
               </button>
@@ -157,7 +157,7 @@ export function RequestCard({
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setShowRejectModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
                 >
                   Cancelar
                 </button>
@@ -165,7 +165,7 @@ export function RequestCard({
                 <button
                   onClick={handleRejectSubmit}
                   disabled={isProcessing}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="flex-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   {isProcessing ? "..." : "Confirmar"}
                 </button>

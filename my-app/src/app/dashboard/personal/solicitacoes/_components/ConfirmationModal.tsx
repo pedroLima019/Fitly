@@ -117,7 +117,7 @@ export function ConfirmationModal({
           {/* Actions */}
           <button
             onClick={onClose}
-            className={`w-full px-4 py-3 text-white font-semibold rounded-lg transition ${current.buttonColor}`}
+            className={`w-full px-4 py-1.5 text-white text-sm font-medium rounded-lg transition ${current.buttonColor}`}
           >
             Entendido
           </button>

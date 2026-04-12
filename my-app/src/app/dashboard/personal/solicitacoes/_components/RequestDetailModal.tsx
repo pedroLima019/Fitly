@@ -145,7 +145,7 @@ export function RequestDetailModal({
               <button
                 onClick={handleApprove}
                 disabled={isProcessing}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00D97E] text-white font-semibold rounded-lg hover:bg-[#00A65D] disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-[#00D97E] text-white text-sm font-medium rounded-lg hover:bg-[#00A65D] disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 <Check size={20} />
                 {isProcessing ? "Processando..." : "Aceitar"}
@@ -154,7 +154,7 @@ export function RequestDetailModal({
               <button
                 onClick={() => setShowRejectForm(true)}
                 disabled={isProcessing}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 <XCircle size={20} />
                 {isProcessing ? "Processando..." : "Rejeitar"}
@@ -168,7 +168,7 @@ export function RequestDetailModal({
               <button
                 onClick={() => setShowRejectForm(true)}
                 disabled={isProcessing}
-                className="flex-1 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="flex-1 px-3 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {isProcessing ? "Cancelando..." : "Desfazer Aceitação"}
               </button>
@@ -201,7 +201,7 @@ export function RequestDetailModal({
                     setShowRejectForm(false);
                     setRejectReason("");
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
                 >
                   Cancelar
                 </button>
@@ -209,7 +209,7 @@ export function RequestDetailModal({
                 <button
                   onClick={handleRejectSubmit}
                   disabled={isProcessing}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="flex-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   {isProcessing ? "..." : "Confirmar Rejeição"}
                 </button>
@@ -233,7 +233,7 @@ export function RequestDetailModal({
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowRejectForm(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 p-2 text-xs border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
                 >
                   Manter
                 </button>
@@ -241,7 +241,7 @@ export function RequestDetailModal({
                 <button
                   onClick={handleRejectSubmit}
                   disabled={isProcessing}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="flex-1 p-2 text-xs bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   {isProcessing ? "..." : "Confirmar Desfazer"}
                 </button>
@@ -270,7 +270,7 @@ export function RequestDetailModal({
           <div className="border-t p-4 sm:p-6 bg-gray-50 sticky bottom-0">
             <button
               onClick={onClose}
-              className="w-full px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition"
+              className="w-full px-3 py-1.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100 transition"
             >
               Fechar
             </button>

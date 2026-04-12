@@ -279,6 +279,28 @@ export async function POST(req: NextRequest) {
       "Client request created successfully",
     );
 
+    // Create notification for the personal trainer
+    try {
+      const student = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { name: true },
+      });
+
+      await prisma.notification.create({
+        data: {
+          userId: personalId,
+          title: "Nova Solicitação Recebida",
+          message: `${student?.name || "Um aluno"} enviou uma solicitação para você!`,
+          type: "request_received",
+          relatedId: request.id,
+          isRead: false,
+        },
+      });
+    } catch (err) {
+      logger.warn({ error: err }, "Failed to create notification for personal");
+      // Don't fail the operation if notification fails
+    }
+
     return NextResponse.json({ request }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {

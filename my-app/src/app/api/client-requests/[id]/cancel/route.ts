@@ -85,13 +85,25 @@ export async function POST(
 
     // Send notification to personal
     try {
-      // Create notification for the bell icon
+      // Create notification for the personal (about cancellation)
       await prisma.notification.create({
         data: {
           userId: clientRequest.personalId,
           title: "Solicitação Cancelada",
           message: `${clientRequest.student?.name || "Um aluno"} cancelou a solicitação.`,
           type: "request_canceled",
+          relatedId: id,
+          isRead: false,
+        },
+      });
+
+      // Create notification for the student (confirming cancellation)
+      await prisma.notification.create({
+        data: {
+          userId: clientRequest.studentId,
+          title: "Solicitação Cancelada",
+          message: `Você cancelou sua solicitação.`,
+          type: "request_canceled_by_student",
           relatedId: id,
           isRead: false,
         },

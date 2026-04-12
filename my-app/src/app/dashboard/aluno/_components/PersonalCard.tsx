@@ -162,7 +162,7 @@ export default function PersonalCard({
           <button
             onClick={handleCancelRequest}
             disabled={isCanceling}
-            className="w-full p-2 rounded-md text-xs font-medium text-yellow-800 bg-yellow-100 hover:bg-yellow-200 disabled:opacity-70"
+            className="w-full p-2 text-xs rounded-md text-xs font-medium text-yellow-800 bg-yellow-100 hover:bg-yellow-200 disabled:opacity-70"
           >
             {isCanceling ? "Cancelando..." : "Cancelar solicitação"}
           </button>

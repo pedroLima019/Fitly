@@ -151,6 +151,18 @@ export async function PATCH(
             isRead: false,
           },
         });
+
+        // Also create notification for the personal (to reflect the approval in their bell)
+        await prisma.notification.create({
+          data: {
+            userId: clientRequest.personalId,
+            title: "Solicitação Aprovada",
+            message: `Você aprovou a solicitação de ${clientRequest.student?.name || "um aluno"}.`,
+            type: "request_approved",
+            relatedId: id,
+            isRead: false,
+          },
+        });
       } catch (err) {
         logger.warn({ error: err }, "Failed to send approval notification");
         // Don't fail the operation if notification fails
@@ -232,6 +244,21 @@ export async function PATCH(
               clientRequest.status === RequestStatus.accepted
                 ? `${clientRequest.personal?.name || "Um personal"} desfez a aceitação da sua solicitação.`
                 : `Sua solicitação foi rejeitada.${rejectionReason ? ` Motivo: ${rejectionReason}` : ""}`,
+            type: notificationType,
+            relatedId: id,
+            isRead: false,
+          },
+        });
+
+        // Also create notification for the personal (to reflect the action in their bell)
+        await prisma.notification.create({
+          data: {
+            userId: clientRequest.personalId,
+            title: notificationTitle,
+            message:
+              clientRequest.status === RequestStatus.accepted
+                ? `Você desfez a aceitação da solicitação de ${clientRequest.student?.name || "um aluno"}.`
+                : `Você rejeitou a solicitação de ${clientRequest.student?.name || "um aluno"}.`,
             type: notificationType,
             relatedId: id,
             isRead: false,

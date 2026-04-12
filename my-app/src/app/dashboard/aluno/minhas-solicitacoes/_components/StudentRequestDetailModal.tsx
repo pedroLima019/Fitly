@@ -95,10 +95,10 @@ export function StudentRequestDetailModal({
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-3">
           {/* Personal Info */}
           <div className="flex items-start gap-2">
-            <div className="relative w-14 h-14 flex-shrink-0">
+            <div className="relative w-12 h-12 flex-shrink-0">
               <Image
                 src={request.personal.image || "/default-avatar.png"}
                 alt={request.personal.name}
@@ -106,7 +106,7 @@ export function StudentRequestDetailModal({
                 className="rounded-full object-cover"
               />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 ">
               <h3 className="text-lg sm:text-xl font-bold text-sm text-gray-900">
                 {request.personal.name}
               </h3>
@@ -152,7 +152,7 @@ export function StudentRequestDetailModal({
               <button
                 onClick={() => setShowCancelForm(true)}
                 disabled={isProcessing}
-                className="flex-1 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="flex-1 px-3 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {isProcessing ? "Cancelando..." : "Cancelar Solicitação"}
               </button>
@@ -161,12 +161,12 @@ export function StudentRequestDetailModal({
 
           {/* Cancel Confirmation */}
           {showCancelForm && request.status !== "rejected" && (
-            <div className="space-y-4 pt-4 border-t bg-red-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-gray-900">
+            <div className="space-y-2 pt-4 border-t bg-red-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-900 text-sm">
                 Cancelar solicitação?
               </h4>
 
-              <p className="text-sm text-gray-700">
+              <p className="text-xs text-gray-700">
                 Tem a certeza de que deseja cancelar sua solicitação para{" "}
                 <strong>{request.personal.name}</strong>? Você poderá enviar
                 outra solicitação no futuro.
@@ -175,7 +175,7 @@ export function StudentRequestDetailModal({
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowCancelForm(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 px-3 py-1.5 text-sm border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
                 >
                   Manter
                 </button>
@@ -183,7 +183,7 @@ export function StudentRequestDetailModal({
                 <button
                   onClick={handleCancelConfirm}
                   disabled={isProcessing}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="flex-1 px-3 py-1.5 text-sm bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   {isProcessing ? "..." : "Cancelar"}
                 </button>

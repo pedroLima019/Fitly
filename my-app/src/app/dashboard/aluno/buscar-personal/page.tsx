@@ -1,6 +1,7 @@
 "use client";
 
 import Header from "@/app/_components/Header";
+import SuccessModal from "@/app/dashboard/aluno/_components/SuccessModal";
 import { useEffect, useState } from "react";
 
 type PersonalCard = {
@@ -19,7 +20,14 @@ export default function BuscarPersonal() {
   const [personals, setPersonals] = useState<PersonalCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const [requestingId, setRequestingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (message && message.includes("sucesso")) {
+      setShowModal(true);
+    }
+  }, [message]);
 
   useEffect(() => {
     const loadPersonals = async () => {
@@ -157,11 +165,14 @@ export default function BuscarPersonal() {
           Encontre o personal trainer ideal para você
         </p>
 
-        {message && (
-          <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md text-sm">
-            {message}
-          </div>
-        )}
+        <SuccessModal
+          message={message}
+          isOpen={showModal}
+          onClose={() => {
+            setShowModal(false);
+            setMessage("");
+          }}
+        />
 
         {personals.length === 0 ? (
           <div className="text-center py-12">

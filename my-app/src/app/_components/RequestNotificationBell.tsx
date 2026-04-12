@@ -152,69 +152,80 @@ export default function RequestNotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 md:absolute md:right-0 md:left-auto md:top-12 md:w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 flex flex-col max-h-screen md:max-h-96">
-          <div className="p-4 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Notificações
-            </h3>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="md:hidden text-gray-400 hover:text-gray-600"
-            >
-              ✕
-            </button>
-          </div>
+        <>
+          <div
+            className="fixed inset-0 md:hidden bg-black bg-opacity-30 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+          <div
+            className="fixed inset-0 md:inset-auto md:right-4 md:top-12 md:w-80 bg-white rounded-lg shadow-lg z-50 flex flex-col max-h-screen md:max-h-96"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white">
+              <h3 className="text-sm font-semibold text-gray-900">
+                Notificações
+              </h3>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="md:hidden text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
 
-          <div className="flex-1 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
-                Nenhuma notificação
-              </div>
-            ) : (
-              notifications.map((notification) => (
-                <Link
-                  key={notification.id}
-                  href={getLinkFromNotification(notification)}
-                  onClick={() => {
-                    handleMarkAsRead(notification);
-                    setIsOpen(false);
-                  }}
-                  className={`flex items-start gap-3 p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                    !notification.isRead ? "bg-blue-50" : ""
-                  }`}
-                >
-                  <div
-                    className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-white text-sm font-bold ${
-                      notification.type === "request_approved"
-                        ? "bg-green-500"
-                        : notification.type === "request_rejected"
-                          ? "bg-red-500"
-                          : "bg-orange-500"
+            <div className="flex-1 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <div className="p-4 text-center text-xs text-gray-500">
+                  Nenhuma notificação
+                </div>
+              ) : (
+                notifications.map((notification) => (
+                  <Link
+                    key={notification.id}
+                    href={getLinkFromNotification(notification)}
+                    onClick={() => {
+                      handleMarkAsRead(notification);
+                      setIsOpen(false);
+                    }}
+                    className={`flex items-start gap-3 p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                      !notification.isRead ? "bg-blue-50" : ""
                     }`}
                   >
-                    {getNotificationIcon(notification.type)}
-                  </div>
+                    <div
+                      className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-white text-sm font-bold ${
+                        notification.type === "request_approved"
+                          ? "bg-green-500"
+                          : notification.type === "request_rejected"
+                            ? "bg-red-500"
+                            : "bg-orange-500"
+                      }`}
+                    >
+                      {getNotificationIcon(notification.type)}
+                    </div>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm md:text-xs">
-                      {getTitleFromNotification(notification)}
-                    </p>
-                    <p className="text-gray-600 text-sm md:text-xs line-clamp-2">
-                      {notification.message}
-                    </p>
-                    <p className="text-gray-400 text-xs mt-1">
-                      {new Date(notification.createdAt).toLocaleString("pt-BR")}
-                    </p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm md:text-xs">
+                        {getTitleFromNotification(notification)}
+                      </p>
+                      <p className="text-gray-600 text-sm md:text-xs line-clamp-2">
+                        {notification.message}
+                      </p>
+                      <p className="text-gray-400 text-xs mt-1">
+                        {new Date(notification.createdAt).toLocaleString(
+                          "pt-BR",
+                        )}
+                      </p>
+                    </div>
 
-                  {!notification.isRead && (
-                    <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2" />
-                  )}
-                </Link>
-              ))
-            )}
+                    {!notification.isRead && (
+                      <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2" />
+                    )}
+                  </Link>
+                ))
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
