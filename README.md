@@ -151,7 +151,7 @@ O projeto utiliza um stack moderno e escalável, escolhido para performance, man
 | -------------------- | ------ | -------------------------------------- |
 | **PostgreSQL**       | Latest | Banco de dados relacional robusto      |
 | **Prisma ORM**       | 7.4.0  | Query builder type-safe com migrations |
-| **@prisma/adapter-pg** | 7.4.0  | Adapter PostgreSQL para Prisma         |
+| **@prisma/adapter-pg** | 7.4.0  | Driver PostgreSQL nativo para Prisma   |
 
 ### Styling & UI
 
