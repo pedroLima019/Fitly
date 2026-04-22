@@ -43,17 +43,17 @@ Alunos precisam de:
 │                                                         │
 │  1️⃣  Personal Trainer cria conta + onboarding         │
 │       ↓                                                 │
-│  2️⃣  Personal cria/configura treinos                   │
+│  2️⃣  Personal completa perfil (especialidades, etc.)  │
 │       ↓                                                 │
-│  3️⃣  Personal convida alunos                           │
+│  3️⃣  Aluno busca personal e envia solicitação         │
 │       ↓                                                 │
-│  4️⃣  Aluno cria conta + aceita convite                │
+│  4️⃣  Personal aceita/recusa solicitação               │
 │       ↓                                                 │
-│  5️⃣  Aluno visualiza dashboard com treinos            │
+│  5️⃣  Conexão estabelecida: chat em tempo real         │
 │       ↓                                                 │
-│  6️⃣  Aluno executa treinos + registra progresso       │
+│  6️⃣  Personal cria treinos para o aluno               │
 │       ↓                                                 │
-│  7️⃣  Personal monitora evolução e ajusta treinos      │
+│  7️⃣  Aluno visualiza e executa treinos                │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -64,57 +64,73 @@ Alunos precisam de:
 
 ### 👥 Para Personal Trainers
 
-| Funcionalidade             | Status       | Descrição                              |
-| -------------------------- | ------------ | -------------------------------------- |
-| Criar treinos customizados | ✅ Planejado | Criar planos de treino personalizados  |
-| Gerenciar alunos           | ✅ Planejado | Visualizar e gerenciar lista de alunos |
-| Monitorar progresso        | ✅ Planejado | Acompanhar desempenho e aderência      |
-| Enviar convites            | ✅ Planejado | Convidar alunos para os programas      |
-| Dashboard analítico        | ✅ Planejado | Relatórios e análises de desempenho    |
-| Ajustar treinos            | ✅ Planejado | Atualizar exercícios em tempo real     |
+| Funcionalidade               | Status         | Descrição                                |
+| ---------------------------- | -------------- | ---------------------------------------- |
+| Dashboard personalizado      | ✅ Implementado | Visão geral com alunos e solicitações    |
+| Gerenciar solicitações       | ✅ Implementado | Aceitar/recusar pedidos de alunos        |
+| Chat em tempo real           | ✅ Implementado | Comunicação via Socket.io                |
+| Notificações                 | ✅ Implementado | Alertas de novas solicitações            |
+| Perfil completo              | ✅ Implementado | Especialidades, preço, localização       |
+| Criar treinos customizados   | 🔄 Em progresso | Criar planos de treino personalizados    |
+| Monitorar progresso          | 📋 Planejado   | Acompanhar desempenho e aderência        |
 
 ### 👨‍🎓 Para Alunos
 
-| Funcionalidade          | Status          | Descrição                       |
-| ----------------------- | --------------- | ------------------------------- |
-| Visualizar treinos      | ✅ Em progresso | Ver treinos prescritos          |
-| Registrar execução      | ✅ Planejado    | Marcar série, repetições e peso |
-| Acompanhar progresso    | ✅ Planejado    | Gráficos de evolução            |
-| Histórico de treinos    | ✅ Planejado    | Consultar treinos passados      |
-| Receber feedback        | ✅ Planejado    | Comunicação com o personal      |
-| Dashboard personalizado | ✅ Em progresso | Visão geral do progresso        |
+| Funcionalidade             | Status         | Descrição                              |
+| -------------------------- | -------------- | -------------------------------------- |
+| Dashboard personalizado    | ✅ Implementado | Visão geral com treinos e personals    |
+| Buscar personals           | ✅ Implementado | Encontrar profissionais disponíveis    |
+| Enviar solicitações        | ✅ Implementado | Solicitar conexão com personal         |
+| Chat em tempo real         | ✅ Implementado | Comunicação via Socket.io              |
+| Notificações               | ✅ Implementado | Status das solicitações                |
+| Perfil completo            | ✅ Implementado | Objetivos, nível, limitações           |
+| Visualizar treinos         | 🔄 Em progresso | Ver treinos prescritos                 |
+| Registrar execução         | 📋 Planejado   | Marcar série, repetições e peso        |
+| Acompanhar progresso       | 📋 Planejado   | Gráficos de evolução                   |
 
 ---
 
 ## 🚀 Roadmap
 
-### Phase 1 - MVP (Em Desenvolvimento)
+### Phase 1 - MVP ✅
 
-- [x] Autenticação e autorização
-- [x] Diferenciação de tipos de usuário
-- [x] Setup inicial do banco de dados
-- [x] Onboarding dos usuários
+- [x] Autenticação e autorização (NextAuth.js)
+- [x] Diferenciação de tipos de usuário (Personal/Aluno)
+- [x] Schema do banco de dados com Prisma
+- [x] Onboarding completo para ambos perfis
+- [x] Sistema de solicitações (enviar/aceitar/recusar/cancelar)
+- [x] Dashboard funcional para personal e aluno
+- [x] Busca de personals com filtros
+- [x] Chat em tempo real (Socket.io)
+- [x] Sistema de notificações
+- [x] Rate limiting e validação com Zod
+- [x] Soft deletes para auditoria
+
+### Phase 2 - Treinos (Em Desenvolvimento)
+
+- [x] Modelo de Training e Exercise no banco
 - [ ] CRUD completo de treinos
-- [ ] Sistema de convites
-- [ ] Dashboards funcionais
+- [ ] Atribuição de treinos a alunos
+- [ ] Visualização de treinos pelo aluno
+- [ ] Execução e registro de treinos
 
-### Phase 2 - Melhorias Core
+### Phase 3 - Melhorias Core
 
-- [ ] Sistema de mensagens em tempo real
-- [ ] Notificações (email, push)
-- [ ] Galeria de exercícios com imagens
+- [ ] Notificações push
+- [ ] Galeria de exercícios com imagens/vídeos
 - [ ] Estatísticas e relatórios avançados
+- [ ] Histórico de treinos
 
-### Phase 3 - Expansão
+### Phase 4 - Expansão
 
 - [ ] Aplicativo mobile (iOS/Android)
 - [ ] Integração com wearables
 - [ ] Planos de treino templates
-- [ ] Comunidade de usuários
+- [ ] Sistema de avaliações
 
 ---
 
-## �️ Stack Tecnológico
+## 🛠️ Stack Tecnológico
 
 O projeto utiliza um stack moderno e escalável, escolhido para performance, manutenibilidade e experiência do desenvolvedor.
 
@@ -122,18 +138,20 @@ O projeto utiliza um stack moderno e escalável, escolhido para performance, man
 
 | Tecnologia      | Versão  | Propósito                                     |
 | --------------- | ------- | --------------------------------------------- |
-| **Next.js**     | 16.1.6  | Framework React full-stack com API Routes     |
+| **Next.js**     | 16.1.6  | Framework React full-stack com App Router     |
 | **React**       | 19.2.3  | Biblioteca UI com hooks e Server Components   |
 | **TypeScript**  | 5       | Tipagem estática completa                     |
 | **NextAuth.js** | 4.24.13 | Autenticação segura e gerenciamento de sessão |
+| **Socket.io**   | 4.8.3   | Comunicação em tempo real (chat)              |
+| **Zod**         | 4.3.6   | Validação de schemas type-safe                |
 
 ### Banco de Dados
 
-| Tecnologia         | Versão | Propósito                              |
-| ------------------ | ------ | -------------------------------------- |
-| **PostgreSQL**     | Latest | Banco de dados relacional robusto      |
-| **Prisma ORM**     | 7.4.0  | Query builder type-safe com migrations |
-| **Prisma Adapter** | 7.4.0  | Integração com NextAuth.js             |
+| Tecnologia           | Versão | Propósito                              |
+| -------------------- | ------ | -------------------------------------- |
+| **PostgreSQL**       | Latest | Banco de dados relacional robusto      |
+| **Prisma ORM**       | 7.4.0  | Query builder type-safe com migrations |
+| **@prisma/adapter-pg** | 7.4.0  | Driver PostgreSQL nativo para Prisma   |
 
 ### Styling & UI
 
@@ -141,16 +159,25 @@ O projeto utiliza um stack moderno e escalável, escolhido para performance, man
 | ---------------- | ------- | -------------------------------------- |
 | **Tailwind CSS** | 4       | Utility-first CSS framework            |
 | **Radix UI**     | 1.4.3   | Componentes acessíveis e customizáveis |
+| **shadcn/ui**    | 3.8.5   | Componentes reutilizáveis              |
 | **Lucide React** | 0.575.0 | Ícones modernos e consistentes         |
-| **React Icons**  | 5.5.0   | Alternativa adicional de ícones        |
+| **React Icons**  | 5.5.0   | Biblioteca adicional de ícones         |
 
-### Testes & Quality
+### Testes & Qualidade
 
 | Tecnologia          | Versão | Propósito                        |
 | ------------------- | ------ | -------------------------------- |
-| **Jest**            | 30.2.0 | Framework de testes unitários    |
+| **Jest**            | 30.2.0 | Framework de testes              |
 | **Testing Library** | 16.3.2 | Testes com foco em comportamento |
 | **ESLint**          | 9      | Linting e qualidade de código    |
+| **Pino**            | 10.3.1 | Logging estruturado              |
+
+### Cache & Performance
+
+| Tecnologia       | Versão | Propósito                     |
+| ---------------- | ------ | ----------------------------- |
+| **Upstash Redis**| 1.37.0 | Cache e rate limiting         |
+| **Redis**        | 5.11.0 | Client Redis                  |
 
 ---
 
@@ -175,19 +202,13 @@ postgres --version  # 12+
 
 ## 📦 Instalação
 
-### Pré-requisitos
-
-- Node.js 18+
-- npm, yarn, pnpm ou bun
-- PostgreSQL instalado e rodando
-
 ### Passos
 
 1. **Clone o repositório**
 
 ```bash
-git clone <seu-repositorio>
-cd my-app
+git clone https://github.com/pedroLima019/Fitly.git
+cd Fitly/my-app
 ```
 
 2. **Instale as dependências**
@@ -200,14 +221,20 @@ npm install
 3. **Configure as variáveis de ambiente**
 
 ```bash
-# Crie um arquivo .env.local
-cp .env.example .env.local
+# Crie um arquivo .env.local com as seguintes variáveis:
+DATABASE_URL="postgresql://..."
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-key"
+# Adicione suas credenciais de OAuth (Google, etc.)
 ```
 
 4. **Configure o banco de dados**
 
 ```bash
-# Execute as migrações do Prisma
+# Gere o Prisma Client
+npx prisma generate
+
+# Execute as migrações
 npx prisma migrate dev
 ```
 
@@ -231,10 +258,17 @@ npm run build
 npm start
 ```
 
-### Linter
+### Comandos Disponíveis
 
 ```bash
-npm run lint
+npm run dev           # Inicia o servidor de desenvolvimento
+npm run build         # Cria build de produção
+npm run start         # Inicia servidor de produção
+npm run lint          # Executa o ESLint
+npm run test          # Executa os testes
+npm run test:watch    # Executa testes em modo watch
+npm run test:coverage # Executa testes com cobertura
+npm run prisma:generate # Gera o Prisma Client
 ```
 
 ---
@@ -245,25 +279,53 @@ npm run lint
 my-app/
 ├── src/
 │   ├── app/
-│   │   ├── api/              # API Routes (NextAuth, endpoints)
-│   │   │   ├── auth/         # Configuração de autenticação
-│   │   │   ├── client-requests/
-│   │   │   └── personals/
-│   │   ├── dashboard/        # Páginas do dashboard
-│   │   │   ├── aluno/        # Dashboard do aluno
-│   │   │   └── personal/     # Dashboard do personal
-│   │   ├── onboarding/       # Páginas de onboarding
-│   │   ├── layout.tsx        # Layout principal
-│   │   └── page.tsx          # Home page
+│   │   ├── _components/          # Componentes compartilhados do app
+│   │   │   ├── BottomMenu.tsx    # Menu inferior mobile
+│   │   │   ├── ChatBox.tsx       # Componente de chat
+│   │   │   ├── Header.tsx        # Cabeçalho global
+│   │   │   └── *NotificationBell.tsx  # Notificações
+│   │   ├── api/                  # API Routes
+│   │   │   ├── auth/             # NextAuth.js
+│   │   │   ├── client-requests/  # Solicitações aluno→personal
+│   │   │   ├── messages/         # Sistema de mensagens
+│   │   │   ├── notifications/    # Sistema de notificações
+│   │   │   ├── personals/        # Busca de personals
+│   │   │   └── profile/          # Perfil do usuário
+│   │   ├── dashboard/
+│   │   │   ├── aluno/            # Dashboard do aluno
+│   │   │   │   ├── buscar-personal/
+│   │   │   │   ├── chats/
+│   │   │   │   ├── complete-perfil/
+│   │   │   │   └── minhas-solicitacoes/
+│   │   │   └── personal/         # Dashboard do personal
+│   │   │       ├── chats/
+│   │   │       ├── complete-perfil/
+│   │   │       └── solicitacoes/
+│   │   ├── onboarding/           # Fluxo de onboarding
+│   │   ├── layout.tsx            # Layout principal
+│   │   └── page.tsx              # Home page
+│   ├── components/
+│   │   └── ui/                   # Componentes UI (shadcn)
+│   ├── hooks/
+│   │   ├── useCepLookup.ts       # Hook para busca de CEP
+│   │   └── useSocket.ts          # Hook para Socket.io
 │   ├── lib/
-│   │   ├── prisma.ts         # Configuração do Prisma
-│   │   └── types.ts          # Tipos TypeScript compartilhados
-│   └── _components/          # Componentes reutilizáveis
+│   │   ├── api-client.ts         # Cliente API utilitário
+│   │   ├── logger.ts             # Logging com Pino
+│   │   ├── prisma.ts             # Instância do Prisma
+│   │   ├── rate-limit.ts         # Rate limiting
+│   │   ├── utils.ts              # Utilitários gerais
+│   │   └── validators.ts         # Schemas Zod
+│   ├── pages/
+│   │   └── api/
+│   │       └── socket.io.ts      # Servidor Socket.io
+│   ├── types/                    # Tipos TypeScript
+│   └── middleware.ts             # Middleware Next.js
 ├── prisma/
-│   ├── schema.prisma         # Schema do banco de dados
-│   └── migrations/           # Migrações do banco
-└── public/                   # Arquivos estáticos
-
+│   ├── schema.prisma             # Schema do banco de dados
+│   └── migrations/               # Migrações do banco
+├── public/                       # Arquivos estáticos
+└── package.json
 ```
 
 ---
@@ -272,41 +334,131 @@ my-app/
 
 O projeto utiliza **NextAuth.js** integrado com **Prisma Adapter** e suporta diferentes tipos de usuários:
 
-- Personal Trainer
-- Aluno
+- **Personal Trainer** - Cria treinos, gerencia alunos
+- **Aluno** - Busca personals, executa treinos
 
-A autenticação é gerenciada através das rotas em `src/app/api/auth/`.
+### Fluxo de Autenticação
+
+1. Login via OAuth (Google, etc.)
+2. Seleção do tipo de usuário (Personal/Aluno)
+3. Onboarding com dados do perfil
+4. Acesso ao dashboard específico
 
 ---
 
-## � Endpoints da API
+## 🔌 Endpoints da API
 
 ### Autenticação
 
-- `POST /api/auth/signin` - Login de usuário
-- `POST /api/auth/signout` - Logout de usuário
-- `POST /api/auth/set-user-type` - Define tipo de usuário (personal/aluno)
+| Método | Endpoint                  | Descrição                          |
+| ------ | ------------------------- | ---------------------------------- |
+| POST   | `/api/auth/signin`        | Login de usuário                   |
+| POST   | `/api/auth/signout`       | Logout de usuário                  |
+| POST   | `/api/auth/set-user-type` | Define tipo de usuário             |
 
-### Treinos
+### Solicitações (Client Requests)
 
-- `GET /api/client-requests` - Listar convites de treino
-- `POST /api/client-requests` - Criar novo convite
-- `GET /api/client-requests/[id]` - Detalhes de um convite
-- `DELETE /api/client-requests/[id]` - Remover convite
+| Método | Endpoint                           | Descrição                          |
+| ------ | ---------------------------------- | ---------------------------------- |
+| GET    | `/api/client-requests`             | Lista solicitações (com paginação) |
+| POST   | `/api/client-requests`             | Cria nova solicitação              |
+| GET    | `/api/client-requests/[id]`        | Detalhes de uma solicitação        |
+| PATCH  | `/api/client-requests/[id]`        | Atualiza status (aceitar/recusar)  |
+| POST   | `/api/client-requests/[id]/cancel` | Cancela solicitação (soft delete)  |
+
+### Mensagens
+
+| Método | Endpoint                        | Descrição                          |
+| ------ | ------------------------------- | ---------------------------------- |
+| GET    | `/api/messages`                 | Lista mensagens de uma conversa    |
+| POST   | `/api/messages`                 | Envia nova mensagem                |
+| GET    | `/api/messages/conversations`   | Lista conversas do usuário         |
+| POST   | `/api/messages/mark-as-read`    | Marca mensagens como lidas         |
+
+### Notificações
+
+| Método | Endpoint                   | Descrição                          |
+| ------ | -------------------------- | ---------------------------------- |
+| GET    | `/api/notifications`       | Lista notificações do usuário      |
+| GET    | `/api/notifications/unread`| Contagem de não lidas              |
 
 ### Personals
 
-- `GET /api/personals` - Listar personals
-- `GET /api/personals/[id]` - Detalhes de um personal
+| Método | Endpoint          | Descrição                          |
+| ------ | ----------------- | ---------------------------------- |
+| GET    | `/api/personals`  | Lista personals disponíveis        |
+
+### Perfil
+
+| Método | Endpoint                  | Descrição                          |
+| ------ | ------------------------- | ---------------------------------- |
+| GET    | `/api/profile/personal`   | Dados do perfil (personal)         |
+| PUT    | `/api/profile/personal`   | Atualiza perfil (personal)         |
+| GET    | `/api/profile/student`    | Dados do perfil (aluno)            |
+| PUT    | `/api/profile/student`    | Atualiza perfil (aluno)            |
 
 ---
 
-## �💾 Banco de Dados
+## 💾 Banco de Dados
 
-O projeto usa **Prisma ORM** com PostgreSQL. As migrações estão versionadas em `prisma/migrations/`.
+### Modelos Principais
 
-Para criar uma nova migração:
+- **User** - Usuários (personal/aluno) com perfil completo
+- **Training** - Treinos com exercícios
+- **Exercise** - Exercícios individuais (séries, repetições, peso)
+- **ClientRequest** - Solicitações de conexão aluno→personal
+- **PersonalStudent** - Relação estabelecida personal↔aluno
+- **Message** - Mensagens do chat
+- **Notification** - Notificações do sistema
+
+### Comandos Prisma
 
 ```bash
+# Gerar Prisma Client
+npx prisma generate
+
+# Criar nova migração
 npx prisma migrate dev --name nome_da_migracao
+
+# Aplicar migrações em produção
+npx prisma migrate deploy
+
+# Visualizar banco no Prisma Studio
+npx prisma studio
 ```
+
+---
+
+## 🔒 Segurança
+
+O projeto implementa diversas camadas de segurança:
+
+- **Rate Limiting** - Proteção contra abuso de endpoints
+- **Validação Zod** - Schemas type-safe para todas as entradas
+- **Soft Deletes** - Auditoria de dados deletados
+- **Permissões** - Verificação de tipos de usuário
+- **JWT Caching** - Redução de queries no banco
+
+---
+
+## 🤝 Contribuindo
+
+1. Fork o projeto
+2. Crie sua branch de feature (`git checkout -b feature/NovaFeature`)
+3. Commit suas mudanças (`git commit -m 'feat: adiciona nova feature'`)
+4. Push para a branch (`git push origin feature/NovaFeature`)
+5. Abra um Pull Request
+
+---
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+
+## 📞 Contato
+
+**Pedro Lima** - [@pedroLima019](https://github.com/pedroLima019)
+
+Link do Projeto: [https://github.com/pedroLima019/Fitly](https://github.com/pedroLima019/Fitly)
