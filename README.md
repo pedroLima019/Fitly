@@ -4,6 +4,7 @@
 ![Version](https://img.shields.io/badge/versão-0.1.0-blue)
 ![License](https://img.shields.io/badge/licença-MIT-green)
 ![Node](https://img.shields.io/badge/node-18+-success)
+[![Build](https://github.com/pedroLima019/Fitly/actions/workflows/ci.yml/badge.svg)](https://github.com/pedroLima019/Fitly/actions)
 
 Uma plataforma moderna e intuitiva que conecta personal trainers e alunos, facilitando o gerenciamento, controle e acompanhamento de treinos com eficiência e precisão.
 
@@ -64,29 +65,29 @@ Alunos precisam de:
 
 ### 👥 Para Personal Trainers
 
-| Funcionalidade               | Status         | Descrição                                |
-| ---------------------------- | -------------- | ---------------------------------------- |
-| Dashboard personalizado      | ✅ Implementado | Visão geral com alunos e solicitações    |
-| Gerenciar solicitações       | ✅ Implementado | Aceitar/recusar pedidos de alunos        |
-| Chat em tempo real           | ✅ Implementado | Comunicação via Socket.io                |
-| Notificações                 | ✅ Implementado | Alertas de novas solicitações            |
-| Perfil completo              | ✅ Implementado | Especialidades, preço, localização       |
-| Criar treinos customizados   | 🔄 Em progresso | Criar planos de treino personalizados    |
-| Monitorar progresso          | 📋 Planejado   | Acompanhar desempenho e aderência        |
+| Funcionalidade             | Status          | Descrição                             |
+| -------------------------- | --------------- | ------------------------------------- |
+| Dashboard personalizado    | ✅ Implementado | Visão geral com alunos e solicitações |
+| Gerenciar solicitações     | ✅ Implementado | Aceitar/recusar pedidos de alunos     |
+| Chat em tempo real         | ✅ Implementado | Comunicação via Socket.io             |
+| Notificações               | ✅ Implementado | Alertas de novas solicitações         |
+| Perfil completo            | ✅ Implementado | Especialidades, preço, localização    |
+| Criar treinos customizados | 🔄 Em progresso | Criar planos de treino personalizados |
+| Monitorar progresso        | 📋 Planejado    | Acompanhar desempenho e aderência     |
 
 ### 👨‍🎓 Para Alunos
 
-| Funcionalidade             | Status         | Descrição                              |
-| -------------------------- | -------------- | -------------------------------------- |
-| Dashboard personalizado    | ✅ Implementado | Visão geral com treinos e personals    |
-| Buscar personals           | ✅ Implementado | Encontrar profissionais disponíveis    |
-| Enviar solicitações        | ✅ Implementado | Solicitar conexão com personal         |
-| Chat em tempo real         | ✅ Implementado | Comunicação via Socket.io              |
-| Notificações               | ✅ Implementado | Status das solicitações                |
-| Perfil completo            | ✅ Implementado | Objetivos, nível, limitações           |
-| Visualizar treinos         | 🔄 Em progresso | Ver treinos prescritos                 |
-| Registrar execução         | 📋 Planejado   | Marcar série, repetições e peso        |
-| Acompanhar progresso       | 📋 Planejado   | Gráficos de evolução                   |
+| Funcionalidade          | Status          | Descrição                           |
+| ----------------------- | --------------- | ----------------------------------- |
+| Dashboard personalizado | ✅ Implementado | Visão geral com treinos e personals |
+| Buscar personals        | ✅ Implementado | Encontrar profissionais disponíveis |
+| Enviar solicitações     | ✅ Implementado | Solicitar conexão com personal      |
+| Chat em tempo real      | ✅ Implementado | Comunicação via Socket.io           |
+| Notificações            | ✅ Implementado | Status das solicitações             |
+| Perfil completo         | ✅ Implementado | Objetivos, nível, limitações        |
+| Visualizar treinos      | 🔄 Em progresso | Ver treinos prescritos              |
+| Registrar execução      | 📋 Planejado    | Marcar série, repetições e peso     |
+| Acompanhar progresso    | 📋 Planejado    | Gráficos de evolução                |
 
 ---
 
@@ -147,10 +148,10 @@ O projeto utiliza um stack moderno e escalável, escolhido para performance, man
 
 ### Banco de Dados
 
-| Tecnologia           | Versão | Propósito                              |
-| -------------------- | ------ | -------------------------------------- |
-| **PostgreSQL**       | Latest | Banco de dados relacional robusto      |
-| **Prisma ORM**       | 7.4.0  | Query builder type-safe com migrations |
+| Tecnologia             | Versão | Propósito                              |
+| ---------------------- | ------ | -------------------------------------- |
+| **PostgreSQL**         | Latest | Banco de dados relacional robusto      |
+| **Prisma ORM**         | 7.4.0  | Query builder type-safe com migrations |
 | **@prisma/adapter-pg** | 7.4.0  | Driver PostgreSQL nativo para Prisma   |
 
 ### Styling & UI
@@ -174,10 +175,10 @@ O projeto utiliza um stack moderno e escalável, escolhido para performance, man
 
 ### Cache & Performance
 
-| Tecnologia       | Versão | Propósito                     |
-| ---------------- | ------ | ----------------------------- |
-| **Upstash Redis**| 1.37.0 | Cache e rate limiting         |
-| **Redis**        | 5.11.0 | Client Redis                  |
+| Tecnologia        | Versão | Propósito             |
+| ----------------- | ------ | --------------------- |
+| **Upstash Redis** | 1.37.0 | Cache e rate limiting |
+| **Redis**         | 5.11.0 | Client Redis          |
 
 ---
 
@@ -221,11 +222,14 @@ npm install
 3. **Configure as variáveis de ambiente**
 
 ```bash
-# Crie um arquivo .env.local com as seguintes variáveis:
-DATABASE_URL="postgresql://..."
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key"
-# Adicione suas credenciais de OAuth (Google, etc.)
+# Copie o arquivo de exemplo e preencha os valores:
+cp .env.example .env
+# Edite o arquivo .env com suas credenciais:
+# - DATABASE_URL
+# - NEXTAUTH_URL
+# - NEXTAUTH_SECRET
+# - GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
+# - REDIS_URL / REDIS_TOKEN (opcional)
 ```
 
 4. **Configure o banco de dados**
@@ -258,18 +262,44 @@ npm run build
 npm start
 ```
 
-### Comandos Disponíveis
+### Comandos Úteis
 
 ```bash
+# Desenvolvimento
 npm run dev           # Inicia o servidor de desenvolvimento
+npm run lint          # Executa o ESLint
+npm run test          # Executa todos os testes
+npm run test:watch    # Testes em modo watch
+npm run test:coverage # Testes com relatório de cobertura
+
+# Produção
 npm run build         # Cria build de produção
 npm run start         # Inicia servidor de produção
-npm run lint          # Executa o ESLint
-npm run test          # Executa os testes
-npm run test:watch    # Executa testes em modo watch
-npm run test:coverage # Executa testes com cobertura
+
+# Prisma
 npm run prisma:generate # Gera o Prisma Client
 ```
+
+---
+
+## ✅ Testes e Integração Contínua
+
+O projeto utiliza **Jest** e **Testing Library** para garantir a qualidade do código. Todos os testes são executados automaticamente via **GitHub Actions** a cada push ou pull request.
+
+### Rodar testes localmente
+
+```bash
+npm test
+npm run test:coverage # Para relatório de cobertura
+```
+
+### CI/CD
+
+O workflow está em `.github/workflows/ci.yml` e executa:
+
+- Instalação de dependências
+- Configuração do ambiente
+- Execução dos testes
 
 ---
 
@@ -350,11 +380,11 @@ O projeto utiliza **NextAuth.js** integrado com **Prisma Adapter** e suporta dif
 
 ### Autenticação
 
-| Método | Endpoint                  | Descrição                          |
-| ------ | ------------------------- | ---------------------------------- |
-| POST   | `/api/auth/signin`        | Login de usuário                   |
-| POST   | `/api/auth/signout`       | Logout de usuário                  |
-| POST   | `/api/auth/set-user-type` | Define tipo de usuário             |
+| Método | Endpoint                  | Descrição              |
+| ------ | ------------------------- | ---------------------- |
+| POST   | `/api/auth/signin`        | Login de usuário       |
+| POST   | `/api/auth/signout`       | Logout de usuário      |
+| POST   | `/api/auth/set-user-type` | Define tipo de usuário |
 
 ### Solicitações (Client Requests)
 
@@ -368,34 +398,34 @@ O projeto utiliza **NextAuth.js** integrado com **Prisma Adapter** e suporta dif
 
 ### Mensagens
 
-| Método | Endpoint                        | Descrição                          |
-| ------ | ------------------------------- | ---------------------------------- |
-| GET    | `/api/messages`                 | Lista mensagens de uma conversa    |
-| POST   | `/api/messages`                 | Envia nova mensagem                |
-| GET    | `/api/messages/conversations`   | Lista conversas do usuário         |
-| POST   | `/api/messages/mark-as-read`    | Marca mensagens como lidas         |
+| Método | Endpoint                      | Descrição                       |
+| ------ | ----------------------------- | ------------------------------- |
+| GET    | `/api/messages`               | Lista mensagens de uma conversa |
+| POST   | `/api/messages`               | Envia nova mensagem             |
+| GET    | `/api/messages/conversations` | Lista conversas do usuário      |
+| POST   | `/api/messages/mark-as-read`  | Marca mensagens como lidas      |
 
 ### Notificações
 
-| Método | Endpoint                   | Descrição                          |
-| ------ | -------------------------- | ---------------------------------- |
-| GET    | `/api/notifications`       | Lista notificações do usuário      |
-| GET    | `/api/notifications/unread`| Contagem de não lidas              |
+| Método | Endpoint                    | Descrição                     |
+| ------ | --------------------------- | ----------------------------- |
+| GET    | `/api/notifications`        | Lista notificações do usuário |
+| GET    | `/api/notifications/unread` | Contagem de não lidas         |
 
 ### Personals
 
-| Método | Endpoint          | Descrição                          |
-| ------ | ----------------- | ---------------------------------- |
-| GET    | `/api/personals`  | Lista personals disponíveis        |
+| Método | Endpoint         | Descrição                   |
+| ------ | ---------------- | --------------------------- |
+| GET    | `/api/personals` | Lista personals disponíveis |
 
 ### Perfil
 
-| Método | Endpoint                  | Descrição                          |
-| ------ | ------------------------- | ---------------------------------- |
-| GET    | `/api/profile/personal`   | Dados do perfil (personal)         |
-| PUT    | `/api/profile/personal`   | Atualiza perfil (personal)         |
-| GET    | `/api/profile/student`    | Dados do perfil (aluno)            |
-| PUT    | `/api/profile/student`    | Atualiza perfil (aluno)            |
+| Método | Endpoint                | Descrição                  |
+| ------ | ----------------------- | -------------------------- |
+| GET    | `/api/profile/personal` | Dados do perfil (personal) |
+| PUT    | `/api/profile/personal` | Atualiza perfil (personal) |
+| GET    | `/api/profile/student`  | Dados do perfil (aluno)    |
+| PUT    | `/api/profile/student`  | Atualiza perfil (aluno)    |
 
 ---
 
